@@ -14,7 +14,13 @@ go install github.com/Muruyung/go-boilgen@latest
 
 ## Requirement
 
-You need to add this dependencies into your project
+If you want to generate code for a new project, you have to do init first
+
+```sh
+go mod init project-name
+```
+
+If you want to generate code for a new project or also an old project, you need to add this dependencies into your project
 
 ```sh
 go get github.com/Muruyung/go-utilities@latest
