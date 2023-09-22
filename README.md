@@ -32,7 +32,7 @@ If you want to generate custom method, you must use the flag **-c** (or **--cust
 go-boilgen -s service_name -n module_name -c custom_method_name -p "field_name1:data_type,field_name2:data_type" -r "field_name1:data_type,field_name2:data_type"
 ```
 
-Use this command for more information about Module Generator.
+Use this command for more information about Go-Boilgen.
 
 ```bash
 go-boilgen --help
