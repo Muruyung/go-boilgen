@@ -83,7 +83,7 @@ func generateDomainSvc(dto dtoModule) error {
 	}
 
 	if ok2 || isExists.isUtilsExists {
-		importList = importList.Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n")
+		importList = importList.Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(

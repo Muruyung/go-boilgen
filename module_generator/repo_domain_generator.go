@@ -69,7 +69,7 @@ func generateDomainRepo(dto dtoModule) error {
 
 	importList := jen.Id("\n").
 		Id(`"context"`).Id("\n").
-		Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n").
+		Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n").
 		Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n")
 
 	if isExists.isTimeExists {

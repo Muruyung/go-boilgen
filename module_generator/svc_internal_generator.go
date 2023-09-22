@@ -154,7 +154,7 @@ func generateGetSvc(name, path, services, idFieldType string) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
-			Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
@@ -225,7 +225,7 @@ func generateGetListSvc(name, path, services string) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
-			Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
 
@@ -576,7 +576,7 @@ func generateCustomSvc(dto dtoModule) error {
 	)
 
 	importList := jen.Id("\n").Id(`"context"`).Id("\n").
-		Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n")
+		Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n")
 
 	if isExists.isTimeExists {
 		importList = importList.Id(`"time"`)

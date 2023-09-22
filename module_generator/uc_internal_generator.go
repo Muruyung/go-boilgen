@@ -223,7 +223,7 @@ func generateGetListUc(name, path, services string) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
-			Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
 
@@ -531,7 +531,7 @@ func generateCustomUc(dto dtoModule) error {
 	}
 
 	if isExists.isUtilsExists {
-		importList = importList.Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n")
+		importList = importList.Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(
