@@ -12,6 +12,14 @@ The following command is used for install it into your local
 go install github.com/Muruyung/go-boilgen@latest
 ```
 
+## Requirement
+
+You need to add this dependencies into your project
+
+```sh
+go get github.com/Muruyung/go-utilities@latest
+```
+
 ## Command
 
 This is example basic command using default method
