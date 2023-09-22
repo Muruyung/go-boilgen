@@ -19,6 +19,13 @@ func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
 	dto.path += "repository" + dto.sep
 	var err error
 
+	if _, err = os.Stat(dto.path); os.IsNotExist(err) {
+		err = os.MkdirAll(dto.path, 0777)
+		if err != nil {
+			return err
+		}
+	}
+
 	if _, err = os.Stat(dto.path + dto.name + ".go"); os.IsNotExist(err) {
 		err = generateDomainRepo(dto)
 		if err != nil {
@@ -33,7 +40,7 @@ func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
 			interfaceShort = fmt.Sprintf("%sRepo", upperName)
 			interfaceName  = fmt.Sprintf("%sRepository", upperName)
 		)
-		err = generateWrapper(interfaceShort, interfaceName, dto.path)
+		err = appendWrapper(interfaceShort, interfaceName, dto.path)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return err
@@ -62,16 +69,11 @@ func generateDomainRepo(dto dtoModule) error {
 
 	importList := jen.Id("\n").
 		Id(`"context"`).Id("\n").
-		Id(`"github.com/Muruyung/go-utilities"`).Id("\n")
+		Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n").
+		Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n")
 
 	if isExists.isTimeExists {
 		importList = importList.Id(`"time"`)
-	}
-
-	_, ok1 := dto.methods["get"]
-	_, ok2 := dto.methods["getList"]
-	if ok1 || ok2 || isExists.isEntityExists {
-		importList = importList.Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(
@@ -85,7 +87,7 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["get"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("Get"+upperName).Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+			jen.Id("Get").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
 				Parens(jen.List(jen.Id(entityName), jen.Error())),
 		)
 	}
@@ -93,8 +95,10 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["getList"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("GetList"+upperName).Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+			jen.Id("GetList").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
 				Parens(jen.List(jen.Id("[]"+entityName), jen.Error())),
+			jen.Id("GetCount").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+				Parens(jen.List(jen.Int(), jen.Error())),
 		)
 	}
 
@@ -109,7 +113,7 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["update"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("Update").Params(jen.Id("ctx").Id(ctx), jen.Id("data").Id(entityName)).
+			jen.Id("Update").Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(dto.fields["id"]), jen.Id("data").Id(entityName)).
 				Parens(jen.Error()),
 		)
 	}
@@ -117,7 +121,7 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["delete"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("Delete").Params(jen.Id("ctx").Id(ctx), jen.Id("data").Id(entityName)).
+			jen.Id("Delete").Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(dto.fields["id"])).
 				Parens(jen.Error()),
 		)
 	}
@@ -154,28 +158,28 @@ func appendDomainRepo(path string, dto dtoModule) error {
 		upperName       = capitalize(dto.name)
 		entityName      = fmt.Sprintf("*entity.%s", upperName)
 		defaultParamGet = fmt.Sprintf("(ctx %s, query utils.QueryBuilderInteractor)", ctx)
-		defaultParam    = fmt.Sprintf("(ctx %s, data %s)", ctx, entityName)
 		defaultError    = "error"
 	)
 
 	if _, ok := dto.methods["get"]; ok {
-		insertText += "\nGet" + upperName + defaultParamGet + fmt.Sprintf("(%s, %s)", entityName, defaultError)
+		insertText += "\nGet" + defaultParamGet + fmt.Sprintf("(%s, %s)", entityName, defaultError)
 	}
 
 	if _, ok := dto.methods["getList"]; ok {
-		insertText += "\nGetList" + upperName + defaultParamGet + fmt.Sprintf("([]%s, %s)", entityName, defaultError)
+		insertText += "\nGetList" + defaultParamGet + fmt.Sprintf("([]%s, %s)", entityName, defaultError)
+		insertText += "\nGetCount" + defaultParamGet + fmt.Sprintf("(int, %s)", defaultError)
 	}
 
 	if _, ok := dto.methods["create"]; ok {
-		insertText += "\nCreate" + upperName + defaultParam + defaultError
+		insertText += "\nSave" + fmt.Sprintf("(ctx %s, data %s) %s", ctx, entityName, defaultError)
 	}
 
 	if _, ok := dto.methods["update"]; ok {
-		insertText += "\nUpdate" + upperName + defaultParam + defaultError
+		insertText += "\nUpdate" + fmt.Sprintf("(ctx %s, id %s, data %s) %s", ctx, dto.fields["id"], entityName, defaultError)
 	}
 
 	if _, ok := dto.methods["delete"]; ok {
-		insertText += "\nDelete" + upperName + defaultParam + defaultError
+		insertText += "\nDelete" + fmt.Sprintf("(ctx %s, id %s) %s", ctx, dto.fields["id"], defaultError)
 	}
 
 	if _, ok := dto.methods["custom"]; ok {

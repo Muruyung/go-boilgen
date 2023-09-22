@@ -79,6 +79,12 @@ func modGen(cmd *cobra.Command, args []string) {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
 	}
+
+	err = internalSvcGenerator(dto, isAll, isServiceOnly)
+	if err != nil {
+		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+		return
+	}
 	//================================================
 
 	//================domain generator================
@@ -86,7 +92,7 @@ func modGen(cmd *cobra.Command, args []string) {
 	if isUseEntity {
 		err = entityGenerator(domainPath, separator, name, fields)
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return
 		}
 

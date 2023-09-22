@@ -13,10 +13,17 @@ func entityGenerator(path, sep, name string, fields map[string]string) error {
 	path += "entity" + sep
 	var err error
 
+	if _, err = os.Stat(path); os.IsNotExist(err) {
+		err = os.MkdirAll(path, 0777)
+		if err != nil {
+			return err
+		}
+	}
+
 	if _, err = os.Stat(path + name + ".go"); os.IsNotExist(err) {
 		err = generateEntity(name, path, fields)
 		if err != nil {
-			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return err
 		} else {
 			logger.Logger.Info("entity created")
 		}

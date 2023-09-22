@@ -6,18 +6,17 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Muruyung/go-utilities/logger"
 	"github.com/dave/jennifer/jen"
 	"github.com/iancoleman/strcase"
-
-	"github.com/Muruyung/go-utilities/logger"
 )
 
-func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
+func internalSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 	if !isAll && !isOnly {
 		return nil
 	}
 
-	dto.path += "usecase" + dto.sep + dto.name
+	dto.path += "service" + dto.sep + dto.name
 	var (
 		err error
 	)
@@ -27,77 +26,77 @@ func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal directory usecase created")
+			logger.Logger.Info("internal directory service created")
 		}
 	}
 
 	if _, err = os.Stat(dto.path + "/init.go"); os.IsNotExist(err) {
-		err = generateInitUc(dto.name, dto.path, dto.services, dto.fields)
+		err = generateInitSvc(dto.name, dto.path, dto.services, dto.fields)
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal init usecase created")
+			logger.Logger.Info("internal init service created")
 		}
 	}
 
 	if _, ok := dto.methods["get"]; ok {
-		err = generateGetUc(dto.name, dto.path, dto.services, dto.fields["id"])
+		err = generateGetSvc(dto.name, dto.path, dto.services, dto.fields["id"])
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal get usecase created")
+			logger.Logger.Info("internal get service created")
 		}
 	}
 
 	if _, ok := dto.methods["getList"]; ok {
-		err = generateGetListUc(dto.name, dto.path, dto.services)
+		err = generateGetListSvc(dto.name, dto.path, dto.services)
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal get list usecase created")
+			logger.Logger.Info("internal get list service created")
 		}
 	}
 
 	if _, ok := dto.methods["create"]; ok {
-		err = generateCreateUc(dto.name, dto.path, dto.services, dto.fields)
+		err = generateCreatetSvc(dto.name, dto.path, dto.services, dto.fields)
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal create usecase created")
+			logger.Logger.Info("internal create service created")
 		}
 	}
 
 	if _, ok := dto.methods["update"]; ok {
-		err = generateUpdateUc(dto.name, dto.path, dto.services, dto.fields)
+		err = generateUpdateSvc(dto.name, dto.path, dto.services, dto.fields)
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal update usecase created")
+			logger.Logger.Info("internal update service created")
 		}
 	}
 
 	if _, ok := dto.methods["delete"]; ok {
-		err = generateDeleteUc(dto.name, dto.path, dto.services, dto.fields)
+		err = generateDeleteSvc(dto.name, dto.path, dto.services, dto.fields)
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal update usecase created")
+			logger.Logger.Info("internal update service created")
 		}
 	}
 
 	if _, ok := dto.methods["custom"]; ok {
-		err = generateCustomUc(dto)
+		err = generateCustomSvc(dto)
 		if err != nil {
 			return err
 		} else {
-			logger.Logger.Info("internal custom usecase created")
+			logger.Logger.Info("internal custom service created")
 		}
 	}
 
 	return nil
 }
 
-func generateInitUc(name, path, services string, fields map[string]string) error {
+func generateInitSvc(name, path, services string, fields map[string]string) error {
 	var (
 		file      = jen.NewFilePathName(path, strings.ToLower(name))
 		upperName = capitalize(name)
@@ -108,25 +107,25 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 	interactorName := fmt.Sprintf("%sInteractor", name)
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase"`, projectName, services)).Id("\n"),
+		jen.Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, services)).Id("\n").
+			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n"),
 	))
 
 	var (
-		ucName = fmt.Sprintf("%sUseCase", upperName)
+		svcName = fmt.Sprintf("%sService", upperName)
 	)
 	file.Type().Id(name + "Interactor").Struct(
-		jen.Id("*service.Wrapper"),
+		jen.Id("repo").Id("*repository.Wrapper"),
 	)
 
-	initName := fmt.Sprintf("New%sUseCase", upperName)
-	file.Commentf("%s initialize new %s use case", initName, title)
-	file.Func().Id(initName).Params(jen.Id("svc").Id("*service.Wrapper")).Id("usecase").Dot(ucName).
+	initName := fmt.Sprintf("New%sService", upperName)
+	file.Commentf("%s initialize new %s service", initName, title)
+	file.Func().Id(initName).Params(jen.Id("repo").Id("*repository.Wrapper")).Id("service").Dot(svcName).
 		Block(
 			jen.Return(
 				jen.Id("&" + interactorName).
 					Block(
-						jen.Id("Wrapper").Op(":").Id("svc,"),
+						jen.Id("repo").Op(":").Id("repo,"),
 					),
 			),
 		)
@@ -134,7 +133,7 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 	return file.Save(path + "/" + dir + ".go")
 }
 
-func generateGetUc(name, path, services, idFieldType string) error {
+func generateGetSvc(name, path, services, idFieldType string) error {
 	var (
 		file       = jen.NewFilePathName(path, strings.ToLower(name))
 		upperName  = capitalize(name)
@@ -142,7 +141,7 @@ func generateGetUc(name, path, services, idFieldType string) error {
 		dir        = name
 		entityName = fmt.Sprintf("*entity.%s", upperName)
 		methodName = fmt.Sprintf("Get%sByID", upperName)
-		svcName    = fmt.Sprintf("%sSvc", upperName)
+		repoName   = fmt.Sprintf("%sRepo", upperName)
 		err        error
 	)
 	name = lowerize(name)
@@ -155,16 +154,17 @@ func generateGetUc(name, path, services, idFieldType string) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
+			Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
 
 	file.Commentf("%s get %s by id", methodName, title)
-	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
+	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
 		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(idFieldType)).
 		Parens(jen.List(jen.Id(entityName), jen.Error())).
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
+			jen.Const().Id("commandName").Op("=").Lit("SVC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
 				jen.Id(loggerCtx).
 					Id(loggerCmdName).
@@ -172,7 +172,9 @@ func generateGetUc(name, path, services, idFieldType string) error {
 					Id("\n").Nil().Id(",\n"),
 			),
 			jen.Line(),
-			jen.Id("res, err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, id)"),
+			jen.Var().Id("query").Op("=").Id("utils.NewQueryBuilder()"),
+			jen.Id("query").Dot("AddWhere").Parens(jen.List(jen.Lit("id"), jen.Lit("="), jen.Lit(idFieldType))),
+			jen.Id("res, err").Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot("Get").Id("(ctx, query)"),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -197,12 +199,12 @@ func generateGetUc(name, path, services, idFieldType string) error {
 		return file.Save(dir)
 	}
 
-	logger.Logger.Warn("internal get usecase already created")
-	err = errors.New("duplicate internal get usecase name")
+	logger.Logger.Warn("internal get service already created")
+	err = errors.New("duplicate internal get service name")
 	return err
 }
 
-func generateGetListUc(name, path, services string) error {
+func generateGetListSvc(name, path, services string) error {
 	var (
 		file       = jen.NewFilePathName(path, strings.ToLower(name))
 		upperName  = capitalize(name)
@@ -210,7 +212,7 @@ func generateGetListUc(name, path, services string) error {
 		dir        = name
 		entityName = fmt.Sprintf("[]*entity.%s", upperName)
 		methodName = fmt.Sprintf("GetList%s", upperName)
-		svcName    = fmt.Sprintf("%sSvc", upperName)
+		repoName   = fmt.Sprintf("%sRepo", upperName)
 		err        error
 	)
 	name = lowerize(name)
@@ -228,11 +230,11 @@ func generateGetListUc(name, path, services string) error {
 	))
 
 	file.Commentf("%s get list %s", methodName, title)
-	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
+	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
 		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
 		Parens(jen.List(jen.Id(entityName), jen.Id("*utils.MetaResponse"), jen.Error())).
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
+			jen.Const().Id("commandName").Op("=").Lit("SVC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
 				jen.Id(loggerCtx).
 					Id(loggerCmdName).
@@ -240,7 +242,20 @@ func generateGetListUc(name, path, services string) error {
 					Id("\n").Nil().Id(",\n"),
 			),
 			jen.Line(),
-			jen.Id("res, metaRes, err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, request)"),
+			jen.Var().Parens(
+				jen.Id("\n").
+					Id("query").Op("=").Id("utils.NewQueryBuilder()").Id("\n").
+					Id("queryPagination").Op("=").Id("utils.NewQueryBuilder()").Id("\n").
+					Id("metaRes").Id("*utils.MetaResponse").Id("\n").
+					Id("page").Id("int").Id("\n").
+					Id("limit").Id("int").Id("\n"),
+			),
+			jen.Line(),
+			jen.If(jen.Id("request").Op("!=").Nil()).Block(
+				jen.Id("query, page, limit").Id("=").Id("request").Dot("SetPaginationWithSort").Parens(jen.Id("query")),
+			),
+			jen.Line(),
+			jen.Id("res, err").Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot("GetList").Id("(ctx, query)"),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -249,6 +264,27 @@ func generateGetListUc(name, path, services string) error {
 						Id("err,\n"),
 				),
 				jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
+			),
+			jen.Line(),
+			jen.If(jen.Id("request").Op("!=").Nil().Op("&&").Id("request").Dot("GetPagination()").Op("!=").Nil()).Block(
+				jen.Id("totalCount, err").Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot("GetCount").Id("(ctx, queryPagination)"),
+				jen.If(jen.Id("err").Op("!=").Nil()).Block(
+					jen.Id(loggerErr).Parens(
+						jen.Id(loggerCtx).
+							Id(loggerCmdName).
+							Id("\n").Id(`"Error get total count list",`).Id("\n").
+							Id("err,\n"),
+					),
+					jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
+				),
+				jen.Line(),
+				jen.Var().Id("meta").Id("=").Id("utils.MapMetaResponse").Parens(jen.List(
+					jen.Id("totalCount"),
+					jen.Id("len(res)"),
+					jen.Id("page"),
+					jen.Id("limit"),
+				)),
+				jen.Id("metaRes").Id("=").Id("&meta"),
 			),
 			jen.Line(),
 			jen.Id(loggerInfo).Parens(
@@ -265,19 +301,19 @@ func generateGetListUc(name, path, services string) error {
 		return file.Save(dir)
 	}
 
-	logger.Logger.Warn("internal get list usecase already created")
-	err = errors.New("duplicate internal get list usecase name")
+	logger.Logger.Warn("internal get list service already created")
+	err = errors.New("duplicate internal get list service name")
 	return err
 }
 
-func generateCreateUc(name, path, services string, fields map[string]string) error {
+func generateCreatetSvc(name, path, services string, fields map[string]string) error {
 	var (
 		file            = jen.NewFilePathName(path, strings.ToLower(name))
 		upperName       = capitalize(name)
 		title           = sentences(name)
 		dir             = name
 		methodName      = fmt.Sprintf("Create%s", upperName)
-		svcName         = fmt.Sprintf("%sSvc", upperName)
+		repoName        = fmt.Sprintf("%sRepo", upperName)
 		dto             = fmt.Sprintf("DTO%s", upperName)
 		generatedParser = make([]jen.Code, 0)
 		err             error
@@ -302,15 +338,15 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n").
+			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n"),
 	))
 
 	file.Commentf("%s create %s", methodName, title)
-	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("dto").Id("usecase").Dot(dto)).Error().
+	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
+		Params(jen.Id("ctx").Id(ctx), jen.Id("dto").Id("service").Dot(dto)).Error().
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
+			jen.Const().Id("commandName").Op("=").Lit("SVC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
 				jen.Id(loggerCtx).
 					Id(loggerCmdName).
@@ -318,9 +354,20 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 					Id("\n").Nil().Id(",\n"),
 			),
 			jen.Line(),
-			jen.Id("err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Parens(jen.Id("ctx, service."+dto).Block(
+			jen.Id("entityDTO, err").Id(":=").Id("entity").Dot("New"+upperName).Parens(jen.Id("entity."+dto).Block(
 				generatedParser...,
 			)),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id(loggerErr).Parens(
+					jen.Id(loggerCtx).
+						Id(loggerCmdName).
+						Id("\n").Id(`"Error generate entity",`).Id("\n").
+						Id("err,\n"),
+				),
+				jen.Return(jen.Id("err")),
+			),
+			jen.Line(),
+			jen.Id("err").Id("=").Id("svc").Dot("repo").Dot(repoName).Dot("Save").Parens(jen.Id("ctx, entityDTO")),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -345,19 +392,18 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 		return file.Save(dir)
 	}
 
-	logger.Logger.Warn("internal create usecase already created")
-	err = errors.New("duplicate internal create usecase name")
+	logger.Logger.Warn("internal create service already created")
+	err = errors.New("duplicate internal create service name")
 	return err
 }
-
-func generateUpdateUc(name, path, services string, fields map[string]string) error {
+func generateUpdateSvc(name, path, services string, fields map[string]string) error {
 	var (
 		file            = jen.NewFilePathName(path, strings.ToLower(name))
 		upperName       = capitalize(name)
 		title           = sentences(name)
 		dir             = name
 		methodName      = fmt.Sprintf("Update%s", upperName)
-		svcName         = fmt.Sprintf("%sSvc", upperName)
+		repoName        = fmt.Sprintf("%sRepo", upperName)
 		dto             = fmt.Sprintf("DTO%s", upperName)
 		generatedParser = make([]jen.Code, 0)
 		err             error
@@ -381,32 +427,42 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
-			Id(`"fmt"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n").
+			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n"),
 	))
 
 	file.Commentf("%s update %s", methodName, title)
-	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"]), jen.Id("dto").Id("usecase").Dot(dto)).Error().
+	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
+		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"]), jen.Id("dto").Id("service").Dot(dto)).Error().
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
+			jen.Const().Id("commandName").Op("=").Lit("SVC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
 				jen.Id(loggerCtx).
 					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Update %s process...",`, title)).
+					Id("\n"+fmt.Sprintf(`"Create %s process...",`, title)).
 					Id("\n").Nil().Id(",\n"),
 			),
 			jen.Line(),
-			jen.Id("err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, id, service."+dto).Block(
+			jen.Id("entityDTO, err").Id(":=").Id("entity").Dot("New"+upperName).Parens(jen.Id("entity."+dto).Block(
 				generatedParser...,
-			).Id(")"),
+			)),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error update by id=%v", id),`).Id("\n").
+						Id("\n").Id(`"Error generate entity",`).Id("\n").
+						Id("err,\n"),
+				),
+				jen.Return(jen.Id("err")),
+			),
+			jen.Line(),
+			jen.Id("err").Id("=").Id("svc").Dot("repo").Dot(repoName).Dot("Update").Parens(jen.Id("ctx, id, entityDTO")),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id(loggerErr).Parens(
+					jen.Id(loggerCtx).
+						Id(loggerCmdName).
+						Id("\n").Id(`"Error update",`).Id("\n").
 						Id("err,\n"),
 				),
 				jen.Return(jen.Id("err")),
@@ -426,19 +482,19 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 		return file.Save(dir)
 	}
 
-	logger.Logger.Warn("internal update usecase already created")
-	err = errors.New("duplicate internal update usecase name")
+	logger.Logger.Warn("internal update service already created")
+	err = errors.New("duplicate internal update service name")
 	return err
 }
 
-func generateDeleteUc(name, path, services string, fields map[string]string) error {
+func generateDeleteSvc(name, path, services string, fields map[string]string) error {
 	var (
 		file       = jen.NewFilePathName(path, strings.ToLower(name))
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
 		methodName = fmt.Sprintf("Delete%s", upperName)
-		svcName    = fmt.Sprintf("%sSvc", upperName)
+		repoName   = fmt.Sprintf("%sRepo", upperName)
 		err        error
 	)
 	name = lowerize(name)
@@ -455,10 +511,10 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 	))
 
 	file.Commentf("%s update %s", methodName, title)
-	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
+	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
 		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"])).Error().
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
+			jen.Const().Id("commandName").Op("=").Lit("SVC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
 				jen.Id(loggerCtx).
 					Id(loggerCmdName).
@@ -466,7 +522,7 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 					Id("\n").Nil().Id(",\n"),
 			),
 			jen.Line(),
-			jen.Id("err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, id)"),
+			jen.Id("err").Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot("Delete").Id("(ctx, id)"),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -491,23 +547,22 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 		return file.Save(dir)
 	}
 
-	logger.Logger.Warn("internal delete usecase already created")
-	err = errors.New("duplicate internal delete usecase name")
+	logger.Logger.Warn("internal delete service already created")
+	err = errors.New("duplicate internal delete service name")
 	return err
 }
 
-func generateCustomUc(dto dtoModule) error {
+func generateCustomSvc(dto dtoModule) error {
 	var (
 		file                  = jen.NewFilePathName(dto.path, strings.ToLower(dto.name))
 		upperName             = capitalize(dto.name)
-		svcName               = fmt.Sprintf("%sSvc", upperName)
+		repoName              = fmt.Sprintf("%sRepo", upperName)
 		title                 = sentences(dto.methodName)
 		dir                   = strcase.ToSnake(dto.methodName)
 		methodName            = capitalize(dto.methodName)
 		isExists              = new(isExists)
 		generatedCustomParams = parseCustomJenCodeFields(dto.params, dto.arrParams, isExists, false)
 		generatedCustomReturn = parseCustomJenCodeFields(dto.returns, dto.arrReturn, isExists, true)
-		paramsVar             = strings.Join(dto.arrParams[:], ",")
 		returnVar             = strings.Join(dto.arrReturn[:], ",")
 		err                   error
 		params                = []jen.Code{jen.Id("ctx").Id(ctx)}
@@ -520,7 +575,8 @@ func generateCustomUc(dto dtoModule) error {
 		embedStruct    = fmt.Sprintf("*%s", interactorName)
 	)
 
-	importList := jen.Id("\n").Id(`"context"`).Id("\n")
+	importList := jen.Id("\n").Id(`"context"`).Id("\n").
+		Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n")
 
 	if isExists.isTimeExists {
 		importList = importList.Id(`"time"`)
@@ -530,16 +586,12 @@ func generateCustomUc(dto dtoModule) error {
 		importList = importList.Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n")
 	}
 
-	if isExists.isUtilsExists {
-		importList = importList.Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n")
-	}
-
 	file.Add(jen.Id("import").Parens(
 		importList.Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n"),
 	))
 
 	blockCode := []jen.Code{
-		jen.Const().Id("commandName").Op("=").Lit("UC-" + strcase.ToScreamingKebab(methodName)),
+		jen.Const().Id("commandName").Op("=").Lit("SVC-" + strcase.ToScreamingKebab(methodName)),
 		jen.Id(loggerInfo).Parens(
 			jen.Id(loggerCtx).
 				Id(loggerCmdName).
@@ -547,7 +599,8 @@ func generateCustomUc(dto dtoModule) error {
 				Id("\n").Nil().Id(",\n"),
 		),
 		jen.Line(),
-		jen.Id(returnVar).Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx," + paramsVar + ")"),
+		jen.Var().Id("query").Op("=").Id("utils.NewQueryBuilder()"),
+		jen.Id(returnVar).Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot(methodName).Id("(ctx, query)"),
 	}
 
 	if isExists.isError {
@@ -575,8 +628,8 @@ func generateCustomUc(dto dtoModule) error {
 		jen.Return().Id(returnVar),
 	)
 
-	file.Commentf("%s %s use case", methodName, title)
-	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
+	file.Commentf("%s %s service", methodName, title)
+	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
 		Params(params...).
 		Parens(jen.List(generatedCustomReturn...)).
 		Block(blockCode...)
@@ -586,7 +639,7 @@ func generateCustomUc(dto dtoModule) error {
 		return file.Save(dir)
 	}
 
-	logger.Logger.Warn("internal custom usecase already created")
-	err = errors.New("duplicate internal custom usecase name")
+	logger.Logger.Warn("internal custom service already created")
+	err = errors.New("duplicate internal custom service name")
 	return err
 }

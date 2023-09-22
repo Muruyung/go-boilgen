@@ -8,9 +8,40 @@ import (
 	"strings"
 
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/dave/jennifer/jen"
 )
 
 func generateWrapper(interfaceShort, interfaceName, path string) error {
+	var pkgName string
+
+	if strings.Contains(interfaceName, "Repository") {
+		pkgName = "repository"
+	}
+
+	if strings.Contains(interfaceName, "Service") {
+		pkgName = "service"
+	}
+
+	if strings.Contains(interfaceName, "UseCase") {
+		pkgName = "usecase"
+	}
+
+	var (
+		file = jen.NewFilePathName(path, pkgName)
+	)
+
+	file.Type().Id("Wrapper").Struct(
+		jen.Id(interfaceShort).Id(interfaceName),
+	)
+
+	return file.Save(path)
+}
+
+func appendWrapper(interfaceShort, interfaceName, path string) error {
+	if _, err := os.Stat(path + "wrapper.go"); os.IsNotExist(err) {
+		return generateWrapper(interfaceShort, interfaceName, path+"wrapper.go")
+	}
+
 	f, err := os.OpenFile(path+"wrapper.go", os.O_RDWR, 0666)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))

@@ -19,6 +19,13 @@ func domainUcGenerator(dto dtoModule, isAll, isOnly bool) error {
 	dto.path += "usecase" + dto.sep
 	var err error
 
+	if _, err = os.Stat(dto.path); os.IsNotExist(err) {
+		err = os.MkdirAll(dto.path, 0777)
+		if err != nil {
+			return err
+		}
+	}
+
 	if _, err = os.Stat(dto.path + dto.name + ".go"); os.IsNotExist(err) {
 		err = generateDomainUc(dto)
 		if err != nil {
@@ -33,7 +40,7 @@ func domainUcGenerator(dto dtoModule, isAll, isOnly bool) error {
 			interfaceShort = fmt.Sprintf("%sUC", upperName)
 			interfaceName  = fmt.Sprintf("%sUseCase", upperName)
 		)
-		err = generateWrapper(interfaceShort, interfaceName, dto.path)
+		err = appendWrapper(interfaceShort, interfaceName, dto.path)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return err
@@ -76,7 +83,7 @@ func generateDomainUc(dto dtoModule) error {
 	}
 
 	if ok2 || isExists.isUtilsExists {
-		importList = importList.Id(`"github.com/Muruyung/go-utilities"`).Id("\n")
+		importList = importList.Id(`utils "github.com/Muruyung/go-utilities"`).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(
