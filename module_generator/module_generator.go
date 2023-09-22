@@ -25,10 +25,12 @@ func modGen(cmd *cobra.Command, args []string) {
 		params, arrParams  = parseFields(cmd.Flag("params").Value.String(), false)
 		returns, arrReturn = parseFields(cmd.Flag("return").Value.String(), false)
 		separator          = string(os.PathSeparator)
+		isModelsOnly, _    = strconv.ParseBool(cmd.Flag("models-only").Value.String())
+		isEntityOnly, _    = strconv.ParseBool(cmd.Flag("entity-only").Value.String())
 		isRepoOnly, _      = strconv.ParseBool(cmd.Flag("repo-only").Value.String())
 		isServiceOnly, _   = strconv.ParseBool(cmd.Flag("service-only").Value.String())
 		isUseCaseOnly, _   = strconv.ParseBool(cmd.Flag("usecase-only").Value.String())
-		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly
+		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
 	)
 
 	if !isUseEntity {
@@ -85,18 +87,22 @@ func modGen(cmd *cobra.Command, args []string) {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
 	}
+
+	if isUseEntity {
+		err = modelsGenerator(dto, isAll, isModelsOnly)
+		if err != nil {
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return
+		}
+	}
 	//================================================
 
 	//================domain generator================
 	dto.path = domainPath
 	if isUseEntity {
-		err = entityGenerator(domainPath, separator, name, fields)
+		err = entityGenerator(domainPath, separator, name, fields, isAll, isEntityOnly)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
-			return
-		}
-
-		if cmd.Flag("entity-only").Value.String() == "true" {
 			return
 		}
 	}

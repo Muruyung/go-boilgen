@@ -9,7 +9,11 @@ import (
 	"github.com/Muruyung/go-utilities/logger"
 )
 
-func entityGenerator(path, sep, name string, fields map[string]string) error {
+func entityGenerator(path, sep, name string, fields map[string]string, isAll, isOnly bool) error {
+	if !isAll && !isOnly {
+		return nil
+	}
+
 	path += "entity" + sep
 	var err error
 

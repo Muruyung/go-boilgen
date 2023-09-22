@@ -36,6 +36,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("custom-method", "c", "", "custom method name (required for 'custom' methods flag)")
 	rootCmd.PersistentFlags().StringP("params", "p", "", `custom method parameters (required for 'custom' methods flag), example:"field_name1:data_type,field_name2:data_type"`)
 	rootCmd.PersistentFlags().StringP("return", "r", "err:error", `custom method return (required for 'custom' methods flag), example:"field_name1:data_type,field_name2:data_type"`)
+	rootCmd.PersistentFlags().Bool("models-only", false, "generate entity only")
 	rootCmd.PersistentFlags().Bool("entity-only", false, "generate entity only")
 	rootCmd.PersistentFlags().Bool("repo-only", false, "generate repository only")
 	rootCmd.PersistentFlags().Bool("service-only", false, "generate service only")
