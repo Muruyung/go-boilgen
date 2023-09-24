@@ -229,8 +229,8 @@ func generateGetListUc(name, path, services string) error {
 
 	file.Commentf("%s get list %s", methodName, title)
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
-		Parens(jen.List(jen.Id(entityName), jen.Id("*utils.MetaResponse"), jen.Error())).
+		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*goutils.RequestOption")).
+		Parens(jen.List(jen.Id(entityName), jen.Id("*goutils.MetaResponse"), jen.Error())).
 		Block(
 			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(

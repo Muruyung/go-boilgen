@@ -109,8 +109,8 @@ func generateDomainSvc(dto dtoModule) error {
 	if _, ok := dto.methods["getList"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("GetList"+upperName).Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
-				Parens(jen.List(jen.Id("[]"+entityName), jen.Id("*utils.MetaResponse"), jen.Error())),
+			jen.Id("GetList"+upperName).Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*goutils.RequestOption")).
+				Parens(jen.List(jen.Id("[]"+entityName), jen.Id("*goutils.MetaResponse"), jen.Error())),
 		)
 	}
 

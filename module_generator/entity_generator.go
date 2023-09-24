@@ -4,28 +4,27 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dave/jennifer/jen"
-
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/dave/jennifer/jen"
 )
 
-func entityGenerator(path, sep, name string, fields map[string]string, isAll, isOnly bool) error {
+func entityGenerator(dto dtoModule, isAll, isOnly bool) error {
 	if !isAll && !isOnly {
 		return nil
 	}
 
-	path += "entity" + sep
+	dto.path += "entity" + dto.sep
 	var err error
 
-	if _, err = os.Stat(path); os.IsNotExist(err) {
-		err = os.MkdirAll(path, 0777)
+	if _, err = os.Stat(dto.path); os.IsNotExist(err) {
+		err = os.MkdirAll(dto.path, 0777)
 		if err != nil {
 			return err
 		}
 	}
 
-	if _, err = os.Stat(path + name + ".go"); os.IsNotExist(err) {
-		err = generateEntity(name, path, fields)
+	if _, err = os.Stat(dto.path + dto.name + ".go"); os.IsNotExist(err) {
+		err = generateEntity(dto)
 		if err != nil {
 			return err
 		} else {
@@ -38,15 +37,15 @@ func entityGenerator(path, sep, name string, fields map[string]string, isAll, is
 	return err
 }
 
-func generateEntity(name, path string, fields map[string]string) error {
+func generateEntity(dto dtoModule) error {
 	var (
-		file      = jen.NewFilePathName(path, "entity")
-		upperName = capitalize(name)
-		title     = sentences(name)
-		dir       = name
+		file      = jen.NewFilePathName(dto.path, "entity")
+		upperName = capitalize(dto.name)
+		title     = sentences(dto.name)
+		dir       = dto.name
 		timeType  = "time.Time"
 	)
-	name = lowerize(name)
+	dto.name = lowerize(dto.name)
 
 	file.Add(jen.Id("import").Parens(
 		jen.Id("\n").
@@ -60,7 +59,7 @@ func generateEntity(name, path string, fields map[string]string) error {
 		generatedInit      = make([]jen.Code, 0)
 	)
 
-	for field, fieldType := range fields {
+	for _, field := range dto.arrFields {
 		var (
 			lowerCaseField = lowerize(field)
 			upperCaseField = capitalize(field)
@@ -72,12 +71,12 @@ func generateEntity(name, path string, fields map[string]string) error {
 
 		generatedFields = append(
 			generatedFields,
-			jen.Id(lowerCaseField).Id(fieldType),
+			jen.Id(lowerCaseField).Id(dto.fields[field]),
 		)
 
 		generatedDtoFields = append(
 			generatedDtoFields,
-			jen.Id(upperCaseField).Id(fieldType),
+			jen.Id(upperCaseField).Id(dto.fields[field]),
 		)
 
 		generatedInit = append(
@@ -112,16 +111,16 @@ func generateEntity(name, path string, fields map[string]string) error {
 	file.Commentf("%s build new entity %s", funcName, title)
 	file.Func().Id(funcName).Params(jen.Id("dto").Id(dtoName)).
 		Parens(jen.List(jen.Id(entityName), jen.Id("error"))).Block(
-		jen.Id(name).Id(":=").Id("&"+upperName).Block(
+		jen.Id(dto.name).Id(":=").Id("&"+upperName).Block(
 			generatedInit...,
 		),
 		jen.Line(),
-		jen.Id("err").Id(":=").Id(name).Dot("validate").Call(),
+		jen.Id("err").Id(":=").Id(dto.name).Dot("validate").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
 			jen.Id("logger").Dot("Logger").Dot("Error").Call(jen.Id("err")),
 			jen.Return(jen.Nil(), jen.Id("err")),
 		),
-		jen.Return(jen.Id(name), jen.Nil()),
+		jen.Return(jen.Id(dto.name), jen.Nil()),
 	)
 
 	file.Line()
@@ -133,7 +132,7 @@ func generateEntity(name, path string, fields map[string]string) error {
 
 	file.Line()
 
-	for field, fieldType := range fields {
+	for _, field := range dto.arrFields {
 		var (
 			lowerCaseField = lowerize(field)
 			upperCaseField = capitalize(field)
@@ -147,14 +146,14 @@ func generateEntity(name, path string, fields map[string]string) error {
 
 		file.Commentf("%s get %s value", getterFuncName, lowerCaseField)
 		file.Func().Params(jen.Id("strc").Id(entityName)).
-			Id(getterFuncName).Params().Id(fieldType).
+			Id(getterFuncName).Params().Id(dto.fields[field]).
 			Block(
 				jen.Return(jen.Id("strc").Dot(lowerCaseField)),
 			)
 
 		file.Commentf("%s set %s value", setterFuncName, lowerCaseField)
 		file.Func().Params(jen.Id("strc").Id(entityName)).
-			Id(setterFuncName).Params(jen.Id(lowerCaseField).Id(fieldType)).
+			Id(setterFuncName).Params(jen.Id(lowerCaseField).Id(dto.fields[field])).
 			Parens(jen.List(jen.Id(entityName), jen.Error())).
 			Block(
 				jen.Id("strc").Dot(lowerCaseField).Op("=").Id(lowerCaseField),
@@ -190,5 +189,5 @@ func generateEntity(name, path string, fields map[string]string) error {
 			jen.Return(jen.Id("strc").Dot("deletedAt")),
 		)
 
-	return file.Save(path + "/" + dir + ".go")
+	return file.Save(dto.path + "/" + dir + ".go")
 }

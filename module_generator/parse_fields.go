@@ -15,6 +15,11 @@ func parseFields(args string, isEntity bool) (res map[string]string, arrRes []st
 		return
 	}
 
+	if isEntity {
+		arrRes = append(arrRes, "id")
+		res["id"] = "string"
+	}
+
 	fields := strings.Split(args, ",")
 	for _, field := range fields {
 		var (
@@ -24,11 +29,7 @@ func parseFields(args string, isEntity bool) (res map[string]string, arrRes []st
 		)
 
 		if len(content) > 0 {
-			if isEntity {
-				name = strcase.ToSnake(content[0])
-			} else {
-				name = strcase.ToLowerCamel(content[0])
-			}
+			name = strcase.ToLowerCamel(content[0])
 
 			if name == "ctx" {
 				continue
@@ -39,13 +40,10 @@ func parseFields(args string, isEntity bool) (res map[string]string, arrRes []st
 			}
 
 			res[name] = fieldType
-			arrRes = append(arrRes, name)
-		}
-	}
 
-	if isEntity {
-		if _, ok := res["id"]; !ok {
-			res["id"] = "string"
+			if name != "id" {
+				arrRes = append(arrRes, name)
+			}
 		}
 	}
 

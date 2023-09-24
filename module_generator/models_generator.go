@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/dave/jennifer/jen"
+	"github.com/iancoleman/strcase"
 )
 
 func modelsGenerator(dto dtoModule, isAll, isOnly bool) error {
@@ -38,53 +40,114 @@ func modelsGenerator(dto dtoModule, isAll, isOnly bool) error {
 }
 
 func generateRepoModels(dto dtoModule) error {
-	// var (
-	// 	file      = jen.NewFilePathName(path, "models")
-	// 	upperName = capitalize(name)
-	// 	title     = sentences(name)
-	// 	dir       = name
-	// 	timeType  = "time.Time"
-	// )
-	// name = lowerize(name)
+	var (
+		file       = jen.NewFilePathName(dto.path, "models")
+		upperName  = capitalize(dto.name)
+		dir        = dto.name
+		timeType   = "time.Time"
+		modelsName = fmt.Sprintf("%sModels", upperName)
+		title      = sentences(modelsName)
+	)
+	dto.name = lowerize(dto.name)
 
-	// file.Add(jen.Id("import").Parens(
-	// 	jen.Id("\n").
-	// 		Id(`"sort"`).Id("\n").
-	// 		Line().
-	// 		Id(`"github.com/Muruyung/go-utilities/converter"`).Id("\n"),
-	// ))
+	file.Add(jen.Id("import").Parens(
+		jen.Id("\n").
+			Id(`"sort"`).Id("\n").
+			Id(`"time"`).Id("\n").
+			Line().
+			Id(`"github.com/Muruyung/go-utilities/converter"`).Id("\n"),
+	))
 
-	// var (
-	// 	generatedFields = make([]jen.Code, 0)
-	// )
+	var (
+		generatedFields = make([]jen.Code, 0)
+	)
 
-	// for field, fieldType := range dto.fields {
-	// 	var upperCaseField = capitalize(field)
+	for _, field := range dto.arrFields {
+		var (
+			upperCaseField = capitalize(field)
+			snakeCaseField = strcase.ToSnake(field)
+		)
 
-	// 	generatedFields = append(
-	// 		generatedFields,
-	// 		jen.Id(upperCaseField).Id(fieldType).Tag(map[string]string{
-	// 			"json": field,
-	// 			"dbq":  field,
-	// 		}),
-	// 	)
-	// }
+		generatedFields = append(
+			generatedFields,
+			jen.Id(upperCaseField).Id(dto.fields[field]).Tag(map[string]string{
+				"json": snakeCaseField,
+				"dbq":  snakeCaseField,
+			}),
+		)
+	}
 
-	// generatedFields = append(
-	// 	generatedFields,
-	// 	jen.Id("CreatedAt").Id(timeType).Tag(map[string]string{
-	// 		"json": "created_at",
-	// 		"dbq":  "created_at",
-	// 	}),
-	// 	jen.Id("UpdatedAt").Id(timeType).Tag(map[string]string{
-	// 		"json": "updated_at",
-	// 		"dbq":  "updated_at",
-	// 	}),
-	// 	jen.Id("DeletedAt").Id("*"+timeType).Tag(map[string]string{
-	// 		"json": "deleted_at",
-	// 		"dbq":  "deleted_at",
-	// 	}),
-	// )
+	generatedFields = append(
+		generatedFields,
+		jen.Id("CreatedAt").Id(timeType).Tag(map[string]string{
+			"json": "created_at",
+			"dbq":  "created_at",
+		}),
+		jen.Id("UpdatedAt").Id(timeType).Tag(map[string]string{
+			"json": "updated_at",
+			"dbq":  "updated_at",
+		}),
+		jen.Id("DeletedAt").Id("*"+timeType).Tag(map[string]string{
+			"json": "deleted_at",
+			"dbq":  "deleted_at",
+		}),
+	)
 
-	return nil
+	file.Commentf("%s %s struct", modelsName, title)
+	file.Type().Id(modelsName).Struct(
+		generatedFields...,
+	)
+	file.Line()
+
+	file.Commentf("GetTableName get table name of %s", title)
+	file.Func().Parens(jen.Id("models").Id(modelsName)).Id("GetTableName").Params().Id("string").Block(
+		jen.Return(jen.Lit(strcase.ToSnake(dto.name))),
+	)
+	file.Line()
+
+	file.Commentf("GetModels get models of %s", title)
+	file.Func().Parens(jen.Id("models").Id(modelsName)).Id("GetModels").Params().Id("interface{}").Block(
+		jen.Return(jen.Id("models")),
+	)
+	file.Line()
+
+	file.Commentf("GetModelsMap get models map of %s", title)
+	file.Func().Parens(jen.Id("models").Id(modelsName)).Id("GetModelsMap").Params().Id("map[string]interface{}").Block(
+		jen.Id("dataMap, _").Id(":=").Id("converter").Dot("ConvertInterfaceToMap").Parens(jen.Id("models")),
+		jen.Return(jen.Id("dataMap")),
+	)
+	file.Line()
+
+	file.Commentf("GetColumns get columns of %s", title)
+	file.Func().Parens(jen.Id("models").Id(modelsName)).Id("GetColumns").Params().Id("[]string").Block(
+		jen.Var().Parens(jen.Id("\n").
+			Id("modelsMap").Id("=").Id("models").Dot("GetModelsMap()").Id("\n").
+			Id("arrColumn").Id("=").Make(jen.Id("[]string"), jen.Id("0")).Id("\n"),
+		),
+		jen.Line(),
+		jen.For(jen.Id("column").Id(":=").Range().Id("modelsMap")).Block(
+			jen.Id("arrColumn").Id("=").Append(jen.Id("arrColumn"), jen.Id("column")),
+		),
+		jen.Id("sort").Dot("Strings").Parens(jen.Id("arrColumn")),
+		jen.Line(),
+		jen.Return(jen.Id("arrColumn")),
+	)
+	file.Line()
+
+	file.Commentf("GetValStruct get value struct of %s", title)
+	file.Func().Parens(jen.Id("models").Id(modelsName)).Id("GetValStruct").Params(jen.Id("arrColumn").Id("[]string")).Id("[]interface{}").Block(
+		jen.Var().Parens(jen.Id("\n").
+			Id("modelsMap").Id("=").Id("models").Dot("GetModelsMap()").Id("\n").
+			Id("arrValue").Id("=").Make(jen.Id("[]interface{}"), jen.Id("0")).Id("\n"),
+		),
+		jen.Line(),
+		jen.For(jen.Id("_, column").Id(":=").Range().Id("arrColumn")).Block(
+			jen.Id("arrValue").Id("=").Append(jen.Id("arrValue"), jen.Id("modelsMap[column]")),
+		),
+		jen.Line(),
+		jen.Return(jen.Id("[]interface{}{arrValue}")),
+	)
+	file.Line()
+
+	return file.Save(dto.path + "/" + dir + ".go")
 }

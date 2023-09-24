@@ -6,9 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dave/jennifer/jen"
-
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/dave/jennifer/jen"
 )
 
 func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
@@ -87,7 +86,7 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["get"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("Get").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+			jen.Id("Get").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
 				Parens(jen.List(jen.Id(entityName), jen.Error())),
 		)
 	}
@@ -95,9 +94,9 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["getList"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("GetList").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+			jen.Id("GetList").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
 				Parens(jen.List(jen.Id("[]"+entityName), jen.Error())),
-			jen.Id("GetCount").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+			jen.Id("GetCount").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
 				Parens(jen.List(jen.Int(), jen.Error())),
 		)
 	}
@@ -129,7 +128,7 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["custom"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id(dto.methodName).Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("utils.QueryBuilderInteractor")).
+			jen.Id(dto.methodName).Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
 				Parens(jen.List(generatedCustomReturn...)),
 		)
 	}

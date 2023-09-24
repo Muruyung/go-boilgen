@@ -7,10 +7,9 @@ import (
 	"os/exec"
 	"strconv"
 
+	"github.com/Muruyung/go-utilities/logger"
 	"github.com/iancoleman/strcase"
 	"github.com/spf13/cobra"
-
-	"github.com/Muruyung/go-utilities/logger"
 )
 
 func modGen(cmd *cobra.Command, args []string) {
@@ -18,7 +17,7 @@ func modGen(cmd *cobra.Command, args []string) {
 		svcName            = cmd.Flag("service").Value.String()
 		name               = strcase.ToSnake(cmd.Flag("name").Value.String())
 		isUseEntity        = cmd.Flag("fields").Value.String() != ""
-		fields, _          = parseFields(cmd.Flag("fields").Value.String(), true)
+		fields, arrFields  = parseFields(cmd.Flag("fields").Value.String(), true)
 		methods            = parseMethods(cmd.Flag("methods").Value.String())
 		methodName         = cmd.Flag("custom-method").Value.String()
 		isUseReturn        = cmd.Flag("return").Value.String() != ""
@@ -60,6 +59,7 @@ func modGen(cmd *cobra.Command, args []string) {
 			name:       name,
 			services:   svcName,
 			fields:     fields,
+			arrFields:  arrFields,
 			methods:    methods,
 			methodName: methodName,
 			params:     params,
@@ -100,7 +100,7 @@ func modGen(cmd *cobra.Command, args []string) {
 	//================domain generator================
 	dto.path = domainPath
 	if isUseEntity {
-		err = entityGenerator(domainPath, separator, name, fields, isAll, isEntityOnly)
+		err = entityGenerator(dto, isAll, isEntityOnly)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return

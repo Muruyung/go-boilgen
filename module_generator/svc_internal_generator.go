@@ -172,7 +172,7 @@ func generateGetSvc(name, path, services, idFieldType string) error {
 					Id("\n").Nil().Id(",\n"),
 			),
 			jen.Line(),
-			jen.Var().Id("query").Op("=").Id("utils.NewQueryBuilder()"),
+			jen.Var().Id("query").Op("=").Id("goutils.NewQueryBuilder()"),
 			jen.Id("query").Dot("AddWhere").Parens(jen.List(jen.Lit("id"), jen.Lit("="), jen.Lit(idFieldType))),
 			jen.Id("res, err").Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot("Get").Id("(ctx, query)"),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
@@ -231,8 +231,8 @@ func generateGetListSvc(name, path, services string) error {
 
 	file.Commentf("%s get list %s", methodName, title)
 	file.Func().Params(jen.Id("svc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
-		Parens(jen.List(jen.Id(entityName), jen.Id("*utils.MetaResponse"), jen.Error())).
+		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*goutils.RequestOption")).
+		Parens(jen.List(jen.Id(entityName), jen.Id("*goutils.MetaResponse"), jen.Error())).
 		Block(
 			jen.Const().Id("commandName").Op("=").Lit("SVC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
@@ -244,9 +244,9 @@ func generateGetListSvc(name, path, services string) error {
 			jen.Line(),
 			jen.Var().Parens(
 				jen.Id("\n").
-					Id("query").Op("=").Id("utils.NewQueryBuilder()").Id("\n").
-					Id("queryPagination").Op("=").Id("utils.NewQueryBuilder()").Id("\n").
-					Id("metaRes").Id("*utils.MetaResponse").Id("\n").
+					Id("query").Op("=").Id("goutils.NewQueryBuilder()").Id("\n").
+					Id("queryPagination").Op("=").Id("goutils.NewQueryBuilder()").Id("\n").
+					Id("metaRes").Id("*goutils.MetaResponse").Id("\n").
 					Id("page").Id("int").Id("\n").
 					Id("limit").Id("int").Id("\n"),
 			),
@@ -278,7 +278,7 @@ func generateGetListSvc(name, path, services string) error {
 					jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
 				),
 				jen.Line(),
-				jen.Var().Id("meta").Id("=").Id("utils.MapMetaResponse").Parens(jen.List(
+				jen.Var().Id("meta").Id("=").Id("goutils.MapMetaResponse").Parens(jen.List(
 					jen.Id("totalCount"),
 					jen.Id("len(res)"),
 					jen.Id("page"),
@@ -599,7 +599,7 @@ func generateCustomSvc(dto dtoModule) error {
 				Id("\n").Nil().Id(",\n"),
 		),
 		jen.Line(),
-		jen.Var().Id("query").Op("=").Id("utils.NewQueryBuilder()"),
+		jen.Var().Id("query").Op("=").Id("goutils.NewQueryBuilder()"),
 		jen.Id(returnVar).Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot(methodName).Id("(ctx, query)"),
 	}
 

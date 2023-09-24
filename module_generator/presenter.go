@@ -16,6 +16,7 @@ type dtoModule struct {
 	name       string
 	services   string
 	fields     map[string]string
+	arrFields  []string
 	methods    map[string]bool
 	methodName string
 	params     map[string]string
