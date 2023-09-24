@@ -3,9 +3,8 @@ package modulegenerator
 import (
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -29,19 +28,18 @@ func Execute() {
 
 func init() {
 	initConfig()
-	rootCmd.PersistentFlags().StringP("service", "s", "", "targeted service name")
-	rootCmd.PersistentFlags().StringP("name", "n", "", "module name")
+	rootCmd.PersistentFlags().StringP("service", "s", "", "Targeted service name")
+	rootCmd.PersistentFlags().StringP("name", "n", "", "Module name")
 	rootCmd.PersistentFlags().StringP("fields", "f", "", `"field_name1:data_type,field_name2:data_type"`)
-	rootCmd.PersistentFlags().StringP("methods", "m", "custom", "the methods that you will create (get, get_list, create, update, or delete)")
-	rootCmd.PersistentFlags().StringP("custom-method", "c", "", "custom method name (required for 'custom' methods flag)")
-	rootCmd.PersistentFlags().StringP("params", "p", "", `custom method parameters (required for 'custom' methods flag), example:"field_name1:data_type,field_name2:data_type"`)
+	rootCmd.PersistentFlags().StringP("methods", "m", "custom", "The methods that you will create (get, get_list, create, update, or delete)")
+	rootCmd.PersistentFlags().StringP("custom-method", "c", "", "Custom method name (required for 'custom' methods flag)")
+	rootCmd.PersistentFlags().StringP("params", "p", "", `Custom method parameters (required for 'custom' methods flag), example:"field_name1:data_type,field_name2:data_type"`)
 	rootCmd.PersistentFlags().StringP("return", "r", "err:error", `custom method return (required for 'custom' methods flag), example:"field_name1:data_type,field_name2:data_type"`)
-	rootCmd.PersistentFlags().Bool("models-only", false, "generate entity only")
-	rootCmd.PersistentFlags().Bool("entity-only", false, "generate entity only")
-	rootCmd.PersistentFlags().Bool("repo-only", false, "generate repository only")
-	rootCmd.PersistentFlags().Bool("service-only", false, "generate service only")
-	rootCmd.PersistentFlags().Bool("usecase-only", false, "generate usecase only")
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().Bool("models-only", false, "Generate models only")
+	rootCmd.PersistentFlags().Bool("entity-only", false, "Generate entity only")
+	rootCmd.PersistentFlags().Bool("repo-only", false, "Generate repository only")
+	rootCmd.PersistentFlags().Bool("service-only", false, "Generate service only")
+	rootCmd.PersistentFlags().Bool("usecase-only", false, "Generate usecase only")
 }
 
 func initConfig() {
