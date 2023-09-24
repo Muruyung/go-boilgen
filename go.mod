@@ -3,12 +3,12 @@ module github.com/Muruyung/go-boilgen
 go 1.20
 
 require (
+	github.com/Muruyung/go-utilities v1.0.7
 	github.com/golang/mock v1.6.0
 	github.com/stoewer/go-strcase v1.3.0
 )
 
 require (
-	github.com/Muruyung/go-utilities v1.0.7 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 )
