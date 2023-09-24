@@ -10,10 +10,11 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var (
 	rootCmd = &cobra.Command{
-		Use:   "boilgen",
-		Short: "Generate core modules with fields",
-		Long:  `This subcommand used to creating core modules (usecase, service, repository, entity)`,
-		Run:   modGen,
+		Use:     "boilgen",
+		Short:   "Generate core modules with fields",
+		Long:    `This subcommand used to creating core modules (usecase, service, repository, entity)`,
+		Run:     modGen,
+		Version: "1.3.1",
 	}
 )
 
@@ -28,6 +29,7 @@ func Execute() {
 
 func init() {
 	initConfig()
+	rootCmd.InitDefaultVersionFlag()
 	rootCmd.PersistentFlags().StringP("service", "s", "", "Targeted service name")
 	rootCmd.PersistentFlags().StringP("name", "n", "", "Module name")
 	rootCmd.PersistentFlags().StringP("fields", "f", "", `"field_name1:data_type,field_name2:data_type"`)
