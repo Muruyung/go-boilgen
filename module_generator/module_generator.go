@@ -29,6 +29,7 @@ func modGen(cmd *cobra.Command, args []string) {
 		isRepoOnly, _      = strconv.ParseBool(cmd.Flag("repo-only").Value.String())
 		isServiceOnly, _   = strconv.ParseBool(cmd.Flag("service-only").Value.String())
 		isUseCaseOnly, _   = strconv.ParseBool(cmd.Flag("usecase-only").Value.String())
+		isWithoutUT, _     = strconv.ParseBool(cmd.Flag("no-unit-test").Value.String())
 		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
 	)
 
@@ -128,11 +129,29 @@ func modGen(cmd *cobra.Command, args []string) {
 
 	var (
 		out     bytes.Buffer
-		command = exec.Command("go", "fmt", "./...")
+		command *exec.Cmd
 	)
+
+	command = exec.Command("go", "fmt", "./...")
 	command.Stdout = &out
 	err = command.Run()
 	if err != nil {
 		logger.Logger.Errorf(defaultErr, err)
+	}
+
+	if isWithoutUT {
+		command = exec.Command("genut", "--config")
+		command.Stdout = &out
+		err = command.Run()
+		if err != nil {
+			logger.Logger.Errorf(defaultErr, err)
+		}
+
+		command = exec.Command("genut", "mocks")
+		command.Stdout = &out
+		err = command.Run()
+		if err != nil {
+			logger.Logger.Errorf(defaultErr, err)
+		}
 	}
 }

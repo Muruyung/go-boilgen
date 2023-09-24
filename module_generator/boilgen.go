@@ -42,6 +42,7 @@ func init() {
 	rootCmd.PersistentFlags().Bool("repo-only", false, "Generate repository only")
 	rootCmd.PersistentFlags().Bool("service-only", false, "Generate service only")
 	rootCmd.PersistentFlags().Bool("usecase-only", false, "Generate usecase only")
+	rootCmd.PersistentFlags().Bool("no-unit-test", false, "Generate without unit test")
 }
 
 func initConfig() {

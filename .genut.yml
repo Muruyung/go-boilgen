@@ -1,0 +1,16 @@
+directories:
+ # Skip is used for skiping folder who didn't want to generate
+ skip:
+  - vendor
+  - mocks
+  - utils
+  - helpers
+ # Process is used for processing folder who want to generate
+ process:
+  - service
+  - repository
+  - usecase
+  - pkg
+  - infrastructure
+ # Others is used for processing folder who want to generate
+ others: false

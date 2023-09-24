@@ -23,8 +23,14 @@ go mod init project-name
 If you want to generate code for a new project or also an old project, you need to add this dependencies into your project
 
 ```sh
-go get github.com/Muruyung/go-utilities@latest
+# Required for using some utilities, like converter, pagination, and query builder
+go-boilgen init
+
+# Required for generate mock (it will used for unit testing)
+go install github.com/RanguraGIT/genut@v1.0.0-release
 ```
+
+**\*P.S: For a mock generator (genut) is created by my co-worker. Thank you to [Agung Maulana Syahputra](https://github.com/RanguraGIT). Without it, go-boilgen cannot produce unit tests.**
 
 ## Command
 
@@ -51,3 +57,7 @@ Use this command for more information about Go-Boilgen.
 ```bash
 go-boilgen --help
 ```
+
+## License
+
+This project is licensed under the MIT License.

@@ -18,6 +18,7 @@ type DTOExampleName struct {
 
 // ExampleNameService example name service wrapper
 type ExampleNameService interface {
+	ExampleCustomMethodDefault(ctx context.Context) error
 	ExampleCustomMethod(ctx context.Context, exampleParam string) (int, error)
 	GetExampleNameByID(ctx context.Context, id int) (*entity.ExampleName, error)
 	GetListExampleName(ctx context.Context, request *goutils.RequestOption) ([]*entity.ExampleName, *goutils.MetaResponse, error)

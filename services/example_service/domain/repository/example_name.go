@@ -8,6 +8,7 @@ import (
 
 // ExampleNameRepository example name repository wrapper
 type ExampleNameRepository interface {
+	ExampleCustomMethodDefault(ctx context.Context, query goutils.QueryBuilderInteractor) error
 	ExampleCustomMethod(ctx context.Context, query goutils.QueryBuilderInteractor) (int, error)
 	Get(ctx context.Context, query goutils.QueryBuilderInteractor) (*entity.ExampleName, error)
 	GetList(ctx context.Context, query goutils.QueryBuilderInteractor) ([]*entity.ExampleName, error)
