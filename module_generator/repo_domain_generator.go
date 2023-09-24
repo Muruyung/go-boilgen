@@ -72,7 +72,7 @@ func generateDomainRepo(dto dtoModule) error {
 		Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n")
 
 	if isExists.isTimeExists {
-		importList = importList.Id(`"time"`)
+		importList = importList.Id(`"time"`).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(
@@ -156,7 +156,7 @@ func appendDomainRepo(path string, dto dtoModule) error {
 		insertText      string
 		upperName       = capitalize(dto.name)
 		entityName      = fmt.Sprintf("*entity.%s", upperName)
-		defaultParamGet = fmt.Sprintf("(ctx %s, query utils.QueryBuilderInteractor)", ctx)
+		defaultParamGet = fmt.Sprintf("(ctx %s, query goutils.QueryBuilderInteractor)", ctx)
 		defaultError    = "error"
 	)
 

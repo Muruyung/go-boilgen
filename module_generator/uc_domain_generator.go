@@ -6,9 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dave/jennifer/jen"
-
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/dave/jennifer/jen"
 )
 
 func domainUcGenerator(dto dtoModule, isAll, isOnly bool) error {
@@ -73,7 +72,7 @@ func generateDomainUc(dto dtoModule) error {
 	importList := jen.Id("\n").Id(`"context"`).Id("\n")
 
 	if isExists.isTimeExists {
-		importList = importList.Id(`"time"`)
+		importList = importList.Id(`"time"`).Id("\n")
 	}
 
 	_, ok1 := dto.methods["get"]
@@ -181,7 +180,7 @@ func appendDomainUc(path string, dto dtoModule) error {
 	}
 
 	if _, ok := dto.methods["getList"]; ok {
-		insertText += "\nGetList" + upperName + fmt.Sprintf("(ctx %s, request *utils.RequestOption)([]%s, *utils.MetaResponse, %s)", ctx, entityName, defaultError)
+		insertText += "\nGetList" + upperName + fmt.Sprintf("(ctx %s, request *goutils.RequestOption)([]%s, *goutils.MetaResponse, %s)", ctx, entityName, defaultError)
 	}
 
 	if _, ok := dto.methods["create"]; ok {

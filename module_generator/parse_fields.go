@@ -73,7 +73,7 @@ func parseJenCodeFields(fields map[string]string) ([]jen.Code, *isExists) {
 			exists.isTimeExists = true
 		}
 
-		if strings.Contains(strcase.ToSnake(fields[field]), "utils") {
+		if strings.Contains(strcase.ToSnake(fields[field]), "goutils") {
 			exists.isUtilsExists = true
 		}
 
@@ -110,7 +110,7 @@ func parseCustomJenCodeFields(fields map[string]string, arrFields []string, exis
 			exists.isTimeExists = true
 		}
 
-		if strings.Contains(strcase.ToSnake(fields[field]), "utils") {
+		if strings.Contains(strcase.ToSnake(fields[field]), "goutils") {
 			exists.isUtilsExists = true
 		}
 
