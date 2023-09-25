@@ -67,6 +67,7 @@ func modGen(cmd *cobra.Command, args []string) {
 			arrParams:  arrParams,
 			returns:    returns,
 			arrReturn:  arrReturn,
+			entityOnly: isEntityOnly,
 		}
 	)
 

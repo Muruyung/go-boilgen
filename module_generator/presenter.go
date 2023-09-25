@@ -23,6 +23,7 @@ type dtoModule struct {
 	arrParams  []string
 	returns    map[string]string
 	arrReturn  []string
+	entityOnly bool
 }
 
 type isExists struct {

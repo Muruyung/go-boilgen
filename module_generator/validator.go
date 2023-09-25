@@ -11,7 +11,7 @@ func validate(dto dtoModule) (err error) {
 		return errors.New("flag name cannot be empty")
 	}
 
-	if _, ok := dto.methods["custom"]; ok {
+	if _, ok := dto.methods["custom"]; ok && !dto.entityOnly {
 		if dto.methodName == "" {
 			return errors.New("flag custom-method cannot be empty if you're using custom methods")
 		}

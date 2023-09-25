@@ -125,7 +125,7 @@ func generateEntity(dto dtoModule) error {
 
 	file.Line()
 
-	file.Func().Params(jen.Id("strc").Id(entityName)).
+	file.Func().Params(jen.Id("data").Id(entityName)).
 		Id("validate").Params().Id("error").Block(
 		jen.Return(jen.Nil()),
 	)
@@ -145,48 +145,90 @@ func generateEntity(dto dtoModule) error {
 		}
 
 		file.Commentf("%s get %s value", getterFuncName, lowerCaseField)
-		file.Func().Params(jen.Id("strc").Id(entityName)).
+		file.Func().Params(jen.Id("data").Id(entityName)).
 			Id(getterFuncName).Params().Id(dto.fields[field]).
 			Block(
-				jen.Return(jen.Id("strc").Dot(lowerCaseField)),
+				jen.Return(jen.Id("data").Dot(lowerCaseField)),
 			)
 
 		file.Commentf("%s set %s value", setterFuncName, lowerCaseField)
-		file.Func().Params(jen.Id("strc").Id(entityName)).
+		file.Func().Params(jen.Id("data").Id(entityName)).
 			Id(setterFuncName).Params(jen.Id(lowerCaseField).Id(dto.fields[field])).
 			Parens(jen.List(jen.Id(entityName), jen.Error())).
 			Block(
-				jen.Id("strc").Dot(lowerCaseField).Op("=").Id(lowerCaseField),
-				jen.Id("err").Id(":=").Id("strc").Dot("validate").Call(),
+				jen.Id("data").Dot(lowerCaseField).Op("=").Id(lowerCaseField),
+				jen.Id("err").Id(":=").Id("data").Dot("validate").Call(),
 				jen.If(jen.Id("err").Op("!=").Nil()).Block(
 					jen.Id("logger").Dot("Logger").Dot("Error").Call(jen.Id("err")),
 					jen.Return(jen.Nil(), jen.Id("err")),
 				),
-				jen.Return(jen.Id("strc"), jen.Nil()),
+				jen.Return(jen.Id("data"), jen.Nil()),
 			)
 
 		file.Line()
 	}
 
 	file.Comment("GetCreatedAt get createdAt value")
-	file.Func().Params(jen.Id("strc").Id(entityName)).
+	file.Func().Params(jen.Id("data").Id(entityName)).
 		Id("GetCreatedAt").Params().Id(timeType).
 		Block(
-			jen.Return(jen.Id("strc").Dot("createdAt")),
+			jen.Return(jen.Id("data").Dot("createdAt")),
+		)
+
+	file.Comment("SetCreatedAt set createdAt value")
+	file.Func().Params(jen.Id("data").Id(entityName)).
+		Id("SetCreatedAt").Params(jen.Id("date").Id("time.Time")).
+		Parens(jen.List(jen.Id(entityName), jen.Error())).
+		Block(
+			jen.Id("data").Dot("createdAt").Op("=").Id("date"),
+			jen.Id("err").Id(":=").Id("data").Dot("validate").Call(),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id("logger").Dot("Logger").Dot("Error").Call(jen.Id("err")),
+				jen.Return(jen.Nil(), jen.Id("err")),
+			),
+			jen.Return(jen.Id("data"), jen.Nil()),
 		)
 
 	file.Comment("GetUpdatedAt get updatedAt value")
-	file.Func().Params(jen.Id("strc").Id(entityName)).
+	file.Func().Params(jen.Id("data").Id(entityName)).
 		Id("GetUpdatedAt").Params().Id(timeType).
 		Block(
-			jen.Return(jen.Id("strc").Dot("updatedAt")),
+			jen.Return(jen.Id("data").Dot("updatedAt")),
+		)
+
+	file.Comment("SetUpdatedAt set updatedAt value")
+	file.Func().Params(jen.Id("data").Id(entityName)).
+		Id("SetUpdatedAt").Params(jen.Id("date").Id("time.Time")).
+		Parens(jen.List(jen.Id(entityName), jen.Error())).
+		Block(
+			jen.Id("data").Dot("updatedAt").Op("=").Id("date"),
+			jen.Id("err").Id(":=").Id("data").Dot("validate").Call(),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id("logger").Dot("Logger").Dot("Error").Call(jen.Id("err")),
+				jen.Return(jen.Nil(), jen.Id("err")),
+			),
+			jen.Return(jen.Id("data"), jen.Nil()),
 		)
 
 	file.Comment("GetDeletedAt get deletedAt value")
-	file.Func().Params(jen.Id("strc").Id(entityName)).
+	file.Func().Params(jen.Id("data").Id(entityName)).
 		Id("GetDeletedAt").Params().Id("*" + timeType).
 		Block(
-			jen.Return(jen.Id("strc").Dot("deletedAt")),
+			jen.Return(jen.Id("data").Dot("deletedAt")),
+		)
+
+	file.Comment("SetDeletedAt set deletedAt value")
+	file.Func().Params(jen.Id("data").Id(entityName)).
+		Id("SetDeletedAt").Params(jen.Id("date").Id("time.Time")).
+		Parens(jen.List(jen.Id(entityName), jen.Error())).
+		Block(
+			jen.Id("data").Dot("deletedAt").Op("=").Id("&date"),
+			jen.Id("err").Id(":=").Id("data").Dot("validate").Call(),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id("logger").Dot("Logger").Dot("Error").Call(jen.Id("err")),
+				jen.Return(jen.Nil(), jen.Id("err")),
+			),
+			jen.Return(jen.Id("data"), jen.Nil()),
 		)
 
 	return file.Save(dto.path + "/" + dir + ".go")

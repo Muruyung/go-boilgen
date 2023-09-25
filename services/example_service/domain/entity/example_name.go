@@ -47,117 +47,150 @@ func NewExampleName(dto DTOExampleName) (*ExampleName, error) {
 	return exampleName, nil
 }
 
-func (strc *ExampleName) validate() error {
+func (data *ExampleName) validate() error {
 	return nil
 }
 
 // GetID get id value
-func (strc *ExampleName) GetID() int {
-	return strc.id
+func (data *ExampleName) GetID() int {
+	return data.id
 }
 
 // SetID set id value
-func (strc *ExampleName) SetID(id int) (*ExampleName, error) {
-	strc.id = id
-	err := strc.validate()
+func (data *ExampleName) SetID(id int) (*ExampleName, error) {
+	data.id = id
+	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
 		return nil, err
 	}
-	return strc, nil
+	return data, nil
 }
 
 // GetName get name value
-func (strc *ExampleName) GetName() string {
-	return strc.name
+func (data *ExampleName) GetName() string {
+	return data.name
 }
 
 // SetName set name value
-func (strc *ExampleName) SetName(name string) (*ExampleName, error) {
-	strc.name = name
-	err := strc.validate()
+func (data *ExampleName) SetName(name string) (*ExampleName, error) {
+	data.name = name
+	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
 		return nil, err
 	}
-	return strc, nil
+	return data, nil
 }
 
 // GetStatus get status value
-func (strc *ExampleName) GetStatus() int {
-	return strc.status
+func (data *ExampleName) GetStatus() int {
+	return data.status
 }
 
 // SetStatus set status value
-func (strc *ExampleName) SetStatus(status int) (*ExampleName, error) {
-	strc.status = status
-	err := strc.validate()
+func (data *ExampleName) SetStatus(status int) (*ExampleName, error) {
+	data.status = status
+	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
 		return nil, err
 	}
-	return strc, nil
+	return data, nil
 }
 
 // GetIsActive get isActive value
-func (strc *ExampleName) GetIsActive() bool {
-	return strc.isActive
+func (data *ExampleName) GetIsActive() bool {
+	return data.isActive
 }
 
 // SetIsActive set isActive value
-func (strc *ExampleName) SetIsActive(isActive bool) (*ExampleName, error) {
-	strc.isActive = isActive
-	err := strc.validate()
+func (data *ExampleName) SetIsActive(isActive bool) (*ExampleName, error) {
+	data.isActive = isActive
+	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
 		return nil, err
 	}
-	return strc, nil
+	return data, nil
 }
 
 // GetTestID get testID value
-func (strc *ExampleName) GetTestID() int64 {
-	return strc.testID
+func (data *ExampleName) GetTestID() int64 {
+	return data.testID
 }
 
 // SetTestID set testID value
-func (strc *ExampleName) SetTestID(testID int64) (*ExampleName, error) {
-	strc.testID = testID
-	err := strc.validate()
+func (data *ExampleName) SetTestID(testID int64) (*ExampleName, error) {
+	data.testID = testID
+	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
 		return nil, err
 	}
-	return strc, nil
+	return data, nil
 }
 
 // GetStartDate get startDate value
-func (strc *ExampleName) GetStartDate() time.Time {
-	return strc.startDate
+func (data *ExampleName) GetStartDate() time.Time {
+	return data.startDate
 }
 
 // SetStartDate set startDate value
-func (strc *ExampleName) SetStartDate(startDate time.Time) (*ExampleName, error) {
-	strc.startDate = startDate
-	err := strc.validate()
+func (data *ExampleName) SetStartDate(startDate time.Time) (*ExampleName, error) {
+	data.startDate = startDate
+	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
 		return nil, err
 	}
-	return strc, nil
+	return data, nil
 }
 
 // GetCreatedAt get createdAt value
-func (strc *ExampleName) GetCreatedAt() time.Time {
-	return strc.createdAt
+func (data *ExampleName) GetCreatedAt() time.Time {
+	return data.createdAt
+}
+
+// SetCreatedAt set createdAt value
+func (data *ExampleName) SetCreatedAt(date time.Time) (*ExampleName, error) {
+	data.createdAt = date
+	err := data.validate()
+	if err != nil {
+		logger.Logger.Error(err)
+		return nil, err
+	}
+	return data, nil
 }
 
 // GetUpdatedAt get updatedAt value
-func (strc *ExampleName) GetUpdatedAt() time.Time {
-	return strc.updatedAt
+func (data *ExampleName) GetUpdatedAt() time.Time {
+	return data.updatedAt
+}
+
+// SetUpdatedAt set updatedAt value
+func (data *ExampleName) SetUpdatedAt(date time.Time) (*ExampleName, error) {
+	data.updatedAt = date
+	err := data.validate()
+	if err != nil {
+		logger.Logger.Error(err)
+		return nil, err
+	}
+	return data, nil
 }
 
 // GetDeletedAt get deletedAt value
-func (strc *ExampleName) GetDeletedAt() *time.Time {
-	return strc.deletedAt
+func (data *ExampleName) GetDeletedAt() *time.Time {
+	return data.deletedAt
+}
+
+// SetDeletedAt set deletedAt value
+func (data *ExampleName) SetDeletedAt(date time.Time) (*ExampleName, error) {
+	data.deletedAt = &date
+	err := data.validate()
+	if err != nil {
+		logger.Logger.Error(err)
+		return nil, err
+	}
+	return data, nil
 }
