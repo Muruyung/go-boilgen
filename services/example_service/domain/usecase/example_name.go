@@ -9,17 +9,15 @@ import (
 
 // DTOExampleName dto for example name usecase
 type DTOExampleName struct {
-	IsActive  bool
-	TestID    int64
 	StartDate time.Time
 	Name      string
 	Status    int
+	IsActive  bool
+	TestID    int64
 }
 
-// ExampleNameUseCase example name usecase wrapper
+// ExampleNameUseCase example name usecase template
 type ExampleNameUseCase interface {
-	ExampleCustomMethodDefault(ctx context.Context) error
-	ExampleCustomMethod(ctx context.Context, exampleParam string) (int, error)
 	GetExampleNameByID(ctx context.Context, id int) (*entity.ExampleName, error)
 	GetListExampleName(ctx context.Context, request *goutils.RequestOption) ([]*entity.ExampleName, *goutils.MetaResponse, error)
 	CreateExampleName(ctx context.Context, dto DTOExampleName) error

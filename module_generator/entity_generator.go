@@ -219,10 +219,10 @@ func generateEntity(dto dtoModule) error {
 
 	file.Comment("SetDeletedAt set deletedAt value")
 	file.Func().Params(jen.Id("data").Id(entityName)).
-		Id("SetDeletedAt").Params(jen.Id("date").Id("time.Time")).
+		Id("SetDeletedAt").Params(jen.Id("date").Id("*time.Time")).
 		Parens(jen.List(jen.Id(entityName), jen.Error())).
 		Block(
-			jen.Id("data").Dot("deletedAt").Op("=").Id("&date"),
+			jen.Id("data").Dot("deletedAt").Op("=").Id("date"),
 			jen.Id("err").Id(":=").Id("data").Dot("validate").Call(),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id("logger").Dot("Logger").Dot("Error").Call(jen.Id("err")),

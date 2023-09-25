@@ -96,6 +96,12 @@ func modGen(cmd *cobra.Command, args []string) {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return
 		}
+
+		err = mapperGenerator(dto, domainPath, isAll, isModelsOnly)
+		if err != nil {
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return
+		}
 	}
 	//================================================
 
@@ -133,14 +139,7 @@ func modGen(cmd *cobra.Command, args []string) {
 		command *exec.Cmd
 	)
 
-	command = exec.Command("go", "fmt", "./...")
-	command.Stdout = &out
-	err = command.Run()
-	if err != nil {
-		logger.Logger.Errorf(defaultErr, err)
-	}
-
-	if isWithoutUT {
+	if !isWithoutUT {
 		command = exec.Command("genut", "--config")
 		command.Stdout = &out
 		err = command.Run()
@@ -154,5 +153,13 @@ func modGen(cmd *cobra.Command, args []string) {
 		if err != nil {
 			logger.Logger.Errorf(defaultErr, err)
 		}
+		logger.Logger.Info("mocks created")
+	}
+
+	command = exec.Command("go", "fmt", "./...")
+	command.Stdout = &out
+	err = command.Run()
+	if err != nil {
+		logger.Logger.Errorf(defaultErr, err)
 	}
 }

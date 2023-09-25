@@ -148,7 +148,7 @@ func generateDomainSvc(dto dtoModule) error {
 		)
 	}
 
-	file.Commentf("%s %s service wrapper", interfaceName, dto.name)
+	file.Commentf("%s %s service template", interfaceName, dto.name)
 	file.Type().Id(interfaceName).Interface(
 		generatedMethods...,
 	)

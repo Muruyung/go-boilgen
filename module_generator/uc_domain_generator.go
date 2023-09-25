@@ -148,7 +148,7 @@ func generateDomainUc(dto dtoModule) error {
 		)
 	}
 
-	file.Commentf("%s %s usecase wrapper", interfaceName, dto.name)
+	file.Commentf("%s %s usecase template", interfaceName, dto.name)
 	file.Type().Id(interfaceName).Interface(
 		generatedMethods...,
 	)

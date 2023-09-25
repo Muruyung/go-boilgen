@@ -50,35 +50,6 @@ func (mr *MockExampleNameRepositoryMockRecorder) Delete(ctx, id interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockExampleNameRepository)(nil).Delete), ctx, id)
 }
 
-// ExampleCustomMethod mocks base method.
-func (m *MockExampleNameRepository) ExampleCustomMethod(ctx context.Context, query goutils.QueryBuilderInteractor) (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExampleCustomMethod", ctx, query)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ExampleCustomMethod indicates an expected call of ExampleCustomMethod.
-func (mr *MockExampleNameRepositoryMockRecorder) ExampleCustomMethod(ctx, query interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExampleCustomMethod", reflect.TypeOf((*MockExampleNameRepository)(nil).ExampleCustomMethod), ctx, query)
-}
-
-// ExampleCustomMethodDefault mocks base method.
-func (m *MockExampleNameRepository) ExampleCustomMethodDefault(ctx context.Context, query goutils.QueryBuilderInteractor) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExampleCustomMethodDefault", ctx, query)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ExampleCustomMethodDefault indicates an expected call of ExampleCustomMethodDefault.
-func (mr *MockExampleNameRepositoryMockRecorder) ExampleCustomMethodDefault(ctx, query interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExampleCustomMethodDefault", reflect.TypeOf((*MockExampleNameRepository)(nil).ExampleCustomMethodDefault), ctx, query)
-}
-
 // Get mocks base method.
 func (m *MockExampleNameRepository) Get(ctx context.Context, query goutils.QueryBuilderInteractor) (*entity.ExampleName, error) {
 	m.ctrl.T.Helper()

@@ -52,6 +52,34 @@ func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
 	return nil
 }
 
+func generateCommonDomainRepo(dto dtoModule) error {
+	var (
+		file             = jen.NewFilePathName(dto.path, "repository")
+		dir              = "common"
+		mapperCommonName = "MapperCommon"
+		modelsCommonName = "ModelsCommon"
+	)
+	dto.name = sentences(dto.name)
+	dto.methodName = capitalize(dto.methodName)
+
+	file.Commentf("%s template for common mapper models", mapperCommonName)
+	file.Type().Id(mapperCommonName).Interface(
+		jen.Id("MapDomainToModels()").Id(modelsCommonName),
+		jen.Id("MapModelsToDomain").Parens(jen.Id("entityStruct").Interface()),
+	)
+
+	file.Commentf("%s template for common models repository", modelsCommonName)
+	file.Type().Id(modelsCommonName).Interface(
+		jen.Id("GetTableName()").String(),
+		jen.Id("GetModels()").Interface(),
+		jen.Id("GetModelsMap()").Id("map[string]interface{}"),
+		jen.Id("GetColumns()").Id("[]string"),
+		jen.Id("GetValStruct").Parens(jen.Id("arrColumn").Id("[]string")).Id("[]interface{}"),
+	)
+
+	return file.Save(dto.path + "/" + dir + ".go")
+}
+
 func generateDomainRepo(dto dtoModule) error {
 	var (
 		file                  = jen.NewFilePathName(dto.path, "repository")
@@ -133,7 +161,7 @@ func generateDomainRepo(dto dtoModule) error {
 		)
 	}
 
-	file.Commentf("%s %s repository wrapper", interfaceName, dto.name)
+	file.Commentf("%s %s repository template", interfaceName, dto.name)
 	file.Type().Id(interfaceName).Interface(
 		generatedMethods...,
 	)

@@ -185,8 +185,8 @@ func (data *ExampleName) GetDeletedAt() *time.Time {
 }
 
 // SetDeletedAt set deletedAt value
-func (data *ExampleName) SetDeletedAt(date time.Time) (*ExampleName, error) {
-	data.deletedAt = &date
+func (data *ExampleName) SetDeletedAt(date *time.Time) (*ExampleName, error) {
+	data.deletedAt = date
 	err := data.validate()
 	if err != nil {
 		logger.Logger.Error(err)
