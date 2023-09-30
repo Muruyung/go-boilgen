@@ -65,6 +65,35 @@ func (mr *MockExampleNameUseCaseMockRecorder) DeleteExampleName(ctx, id interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteExampleName", reflect.TypeOf((*MockExampleNameUseCase)(nil).DeleteExampleName), ctx, id)
 }
 
+// ExampleCustomMethod mocks base method.
+func (m *MockExampleNameUseCase) ExampleCustomMethod(ctx context.Context, exampleParam string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExampleCustomMethod", ctx, exampleParam)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExampleCustomMethod indicates an expected call of ExampleCustomMethod.
+func (mr *MockExampleNameUseCaseMockRecorder) ExampleCustomMethod(ctx, exampleParam interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExampleCustomMethod", reflect.TypeOf((*MockExampleNameUseCase)(nil).ExampleCustomMethod), ctx, exampleParam)
+}
+
+// ExampleCustomMethodDefault mocks base method.
+func (m *MockExampleNameUseCase) ExampleCustomMethodDefault(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExampleCustomMethodDefault", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ExampleCustomMethodDefault indicates an expected call of ExampleCustomMethodDefault.
+func (mr *MockExampleNameUseCaseMockRecorder) ExampleCustomMethodDefault(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExampleCustomMethodDefault", reflect.TypeOf((*MockExampleNameUseCase)(nil).ExampleCustomMethodDefault), ctx)
+}
+
 // GetExampleNameByID mocks base method.
 func (m *MockExampleNameUseCase) GetExampleNameByID(ctx context.Context, id int) (*entity.ExampleName, error) {
 	m.ctrl.T.Helper()

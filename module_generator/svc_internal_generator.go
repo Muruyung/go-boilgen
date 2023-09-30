@@ -98,7 +98,7 @@ func internalSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 
 func generateInitSvc(name, path, services string, fields map[string]string) error {
 	var (
-		file      = jen.NewFilePathName(path, strings.ToLower(name))
+		file      = jen.NewFilePathName(path, strings.ToLower(name)+"_service")
 		upperName = capitalize(name)
 		title     = sentences(name)
 		dir       = "init"
@@ -135,7 +135,7 @@ func generateInitSvc(name, path, services string, fields map[string]string) erro
 
 func generateGetSvc(name, path, services, idFieldType string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name))
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_service")
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
@@ -179,8 +179,8 @@ func generateGetSvc(name, path, services, idFieldType string) error {
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error get by id=%v", id),`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`fmt.Sprintf("Error get by id=%v", id),`).
+						Id(logErr),
 				),
 				jen.Return(jen.Nil(), jen.Id("err")),
 			),
@@ -206,7 +206,7 @@ func generateGetSvc(name, path, services, idFieldType string) error {
 
 func generateGetListSvc(name, path, services string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name))
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_service")
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
@@ -260,8 +260,8 @@ func generateGetListSvc(name, path, services string) error {
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error get list",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error get list",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
 			),
@@ -273,7 +273,7 @@ func generateGetListSvc(name, path, services string) error {
 						jen.Id(loggerCtx).
 							Id(loggerCmdName).
 							Id("\n").Id(`"Error get total count list",`).Id("\n").
-							Id("err,\n"),
+							Id(logErr),
 					),
 					jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
 				),
@@ -308,7 +308,7 @@ func generateGetListSvc(name, path, services string) error {
 
 func generateCreatetSvc(name, path, services string, fields map[string]string) error {
 	var (
-		file            = jen.NewFilePathName(path, strings.ToLower(name))
+		file            = jen.NewFilePathName(path, strings.ToLower(name)+"_service")
 		upperName       = capitalize(name)
 		title           = sentences(name)
 		dir             = name
@@ -361,8 +361,8 @@ func generateCreatetSvc(name, path, services string, fields map[string]string) e
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error generate entity",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error generate entity",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -372,8 +372,8 @@ func generateCreatetSvc(name, path, services string, fields map[string]string) e
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error create",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error create",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -398,7 +398,7 @@ func generateCreatetSvc(name, path, services string, fields map[string]string) e
 }
 func generateUpdateSvc(name, path, services string, fields map[string]string) error {
 	var (
-		file            = jen.NewFilePathName(path, strings.ToLower(name))
+		file            = jen.NewFilePathName(path, strings.ToLower(name)+"_service")
 		upperName       = capitalize(name)
 		title           = sentences(name)
 		dir             = name
@@ -451,8 +451,8 @@ func generateUpdateSvc(name, path, services string, fields map[string]string) er
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error generate entity",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error generate entity",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -462,8 +462,8 @@ func generateUpdateSvc(name, path, services string, fields map[string]string) er
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error update",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error update",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -489,7 +489,7 @@ func generateUpdateSvc(name, path, services string, fields map[string]string) er
 
 func generateDeleteSvc(name, path, services string, fields map[string]string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name))
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_service")
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
@@ -527,8 +527,8 @@ func generateDeleteSvc(name, path, services string, fields map[string]string) er
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error delete by id=%v", id),`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`fmt.Sprintf("Error delete by id=%v", id),`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -554,9 +554,7 @@ func generateDeleteSvc(name, path, services string, fields map[string]string) er
 
 func generateCustomSvc(dto dtoModule) error {
 	var (
-		file                  = jen.NewFilePathName(dto.path, strings.ToLower(dto.name))
-		upperName             = capitalize(dto.name)
-		repoName              = fmt.Sprintf("%sRepo", upperName)
+		file                  = jen.NewFilePathName(dto.path, strings.ToLower(dto.name)+"_service")
 		title                 = sentences(dto.methodName)
 		dir                   = strcase.ToSnake(dto.methodName)
 		methodName            = capitalize(dto.methodName)
@@ -573,10 +571,14 @@ func generateCustomSvc(dto dtoModule) error {
 	var (
 		interactorName = fmt.Sprintf("%sInteractor", dto.name)
 		embedStruct    = fmt.Sprintf("*%s", interactorName)
+		fieldList      = "\n"
 	)
 
-	importList := jen.Id("\n").Id(`"context"`).Id("\n").
-		Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n")
+	for _, field := range dto.arrReturn {
+		fieldList += fmt.Sprintf("%s %s\n", field, dto.returns[field])
+	}
+
+	importList := jen.Id("\n").Id(`"context"`).Id("\n")
 
 	if isExists.isTimeExists {
 		importList = importList.Id(`"time"`)
@@ -595,34 +597,38 @@ func generateCustomSvc(dto dtoModule) error {
 		jen.Id(loggerInfo).Parens(
 			jen.Id(loggerCtx).
 				Id(loggerCmdName).
-				Id("\n" + fmt.Sprintf(`"Get list %s process...",`, title)).
+				Id("\n" + fmt.Sprintf(`"%s process...",`, title)).
 				Id("\n").Nil().Id(",\n"),
 		),
 		jen.Line(),
-		jen.Var().Id("query").Op("=").Id("goutils.NewQueryBuilder()"),
-		jen.Id(returnVar).Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot(methodName).Id("(ctx, query)"),
+		jen.Var().Parens(jen.Id(fieldList)),
+		jen.Line(),
+		jen.Comment("TODO: Implement code here"),
 	}
+	// 	jen.Var().Id("query").Op("=").Id("goutils.NewQueryBuilder()"),
+	// 	jen.Id(returnVar).Id(":=").Id("svc").Dot("repo").Dot(repoName).Dot(methodName).Id("(ctx, query)"),
+	// }
 
-	if isExists.isError {
-		blockCode = append(blockCode,
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(fmt.Sprintf(`"Error %s",`, title)).Id("\n").
-						Id("err,\n"),
-				),
-				jen.Return().Id(returnVar),
-			),
-		)
-	}
+	// if isExists.isError {
+	// 	blockCode = append(blockCode,
+	// 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+	// 			jen.Id(loggerErr).Parens(
+	// 				jen.Id(loggerCtx).
+	// 					Id(loggerCmdName).
+	// 					Id("\n").Id(fmt.Sprintf(`"Error %s",`, title)).
+	// 					Id(logErr),
+	// 			),
+	// 			jen.Return().Id(returnVar),
+	// 		),
+	// 	)
+	// }
 
 	blockCode = append(blockCode,
 		jen.Line(),
 		jen.Id(loggerInfo).Parens(
 			jen.Id(loggerCtx).
 				Id(loggerCmdName).
-				Id("\n"+fmt.Sprintf(`"Get list %s success",`, title)).
+				Id("\n"+fmt.Sprintf(`"%s success",`, title)).
 				Id("\n").Nil().Id(",\n"),
 		),
 		jen.Return().Id(returnVar),

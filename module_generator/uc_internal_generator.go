@@ -6,10 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Muruyung/go-utilities/logger"
 	"github.com/dave/jennifer/jen"
 	"github.com/iancoleman/strcase"
-
-	"github.com/Muruyung/go-utilities/logger"
 )
 
 func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
@@ -99,7 +98,7 @@ func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
 
 func generateInitUc(name, path, services string, fields map[string]string) error {
 	var (
-		file      = jen.NewFilePathName(path, strings.ToLower(name))
+		file      = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
 		upperName = capitalize(name)
 		title     = sentences(name)
 		dir       = "init"
@@ -136,7 +135,7 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 
 func generateGetUc(name, path, services, idFieldType string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name))
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
@@ -177,8 +176,8 @@ func generateGetUc(name, path, services, idFieldType string) error {
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error get by id=%v", id),`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`fmt.Sprintf("Error get by id=%v", id),`).
+						Id(logErr),
 				),
 				jen.Return(jen.Nil(), jen.Id("err")),
 			),
@@ -204,7 +203,7 @@ func generateGetUc(name, path, services, idFieldType string) error {
 
 func generateGetListUc(name, path, services string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name))
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
@@ -245,8 +244,8 @@ func generateGetListUc(name, path, services string) error {
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error get list",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error get list",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
 			),
@@ -272,7 +271,7 @@ func generateGetListUc(name, path, services string) error {
 
 func generateCreateUc(name, path, services string, fields map[string]string) error {
 	var (
-		file            = jen.NewFilePathName(path, strings.ToLower(name))
+		file            = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
 		upperName       = capitalize(name)
 		title           = sentences(name)
 		dir             = name
@@ -325,8 +324,8 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`"Error create",`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`"Error create",`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -352,7 +351,7 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 
 func generateUpdateUc(name, path, services string, fields map[string]string) error {
 	var (
-		file            = jen.NewFilePathName(path, strings.ToLower(name))
+		file            = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
 		upperName       = capitalize(name)
 		title           = sentences(name)
 		dir             = name
@@ -406,8 +405,8 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error update by id=%v", id),`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`fmt.Sprintf("Error update by id=%v", id),`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -433,7 +432,7 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 
 func generateDeleteUc(name, path, services string, fields map[string]string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name))
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
 		upperName  = capitalize(name)
 		title      = sentences(name)
 		dir        = name
@@ -471,8 +470,8 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error delete by id=%v", id),`).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(`fmt.Sprintf("Error delete by id=%v", id),`).
+						Id(logErr),
 				),
 				jen.Return(jen.Id("err")),
 			),
@@ -498,7 +497,7 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 
 func generateCustomUc(dto dtoModule) error {
 	var (
-		file                  = jen.NewFilePathName(dto.path, strings.ToLower(dto.name))
+		file                  = jen.NewFilePathName(dto.path, strings.ToLower(dto.name)+"_usecase")
 		upperName             = capitalize(dto.name)
 		svcName               = fmt.Sprintf("%sSvc", upperName)
 		title                 = sentences(dto.methodName)
@@ -543,7 +542,7 @@ func generateCustomUc(dto dtoModule) error {
 		jen.Id(loggerInfo).Parens(
 			jen.Id(loggerCtx).
 				Id(loggerCmdName).
-				Id("\n" + fmt.Sprintf(`"Get list %s process...",`, title)).
+				Id("\n" + fmt.Sprintf(`"%s process...",`, title)).
 				Id("\n").Nil().Id(",\n"),
 		),
 		jen.Line(),
@@ -556,8 +555,8 @@ func generateCustomUc(dto dtoModule) error {
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n").Id(fmt.Sprintf(`"Error %s",`, title)).Id("\n").
-						Id("err,\n"),
+						Id("\n").Id(fmt.Sprintf(`"Error %s",`, title)).
+						Id(logErr),
 				),
 				jen.Return().Id(returnVar),
 			),
@@ -569,7 +568,7 @@ func generateCustomUc(dto dtoModule) error {
 		jen.Id(loggerInfo).Parens(
 			jen.Id(loggerCtx).
 				Id(loggerCmdName).
-				Id("\n"+fmt.Sprintf(`"Get list %s success",`, title)).
+				Id("\n"+fmt.Sprintf(`"%s success",`, title)).
 				Id("\n").Nil().Id(",\n"),
 		),
 		jen.Return().Id(returnVar),

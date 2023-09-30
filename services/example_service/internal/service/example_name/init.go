@@ -1,4 +1,4 @@
-package example_name
+package example_name_service
 
 import (
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/repository"

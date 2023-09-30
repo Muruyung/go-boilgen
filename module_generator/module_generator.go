@@ -90,14 +90,20 @@ func modGen(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	err = internalRepoGenerator(dto, isAll, isRepoOnly)
+	if err != nil {
+		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+		return
+	}
+
 	if isUseEntity {
-		err = modelsGenerator(dto, isAll, isModelsOnly)
+		err = modelsGenerator(dto, isAll, isModelsOnly || isRepoOnly)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return
 		}
 
-		err = mapperGenerator(dto, domainPath, isAll, isModelsOnly)
+		err = mapperGenerator(dto, domainPath, isAll, isModelsOnly || isRepoOnly)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return
@@ -136,30 +142,50 @@ func modGen(cmd *cobra.Command, args []string) {
 
 	var (
 		out     bytes.Buffer
+		ioErr   bytes.Buffer
 		command *exec.Cmd
 	)
 
 	if !isWithoutUT {
 		command = exec.Command("genut", "--config")
 		command.Stdout = &out
+		command.Stderr = &ioErr
 		err = command.Run()
 		if err != nil {
-			logger.Logger.Errorf(defaultErr, err)
+			logger.Logger.Errorf("Genut config %s", fmt.Sprintf(defaultErr, command.Stderr))
 		}
 
 		command = exec.Command("genut", "mocks")
 		command.Stdout = &out
+		command.Stderr = &ioErr
 		err = command.Run()
 		if err != nil {
-			logger.Logger.Errorf(defaultErr, err)
+			logger.Logger.Errorf("Genut mocks %s", fmt.Sprintf(defaultErr, command.Stderr))
 		}
 		logger.Logger.Info("mocks created")
 	}
 
 	command = exec.Command("go", "fmt", "./...")
 	command.Stdout = &out
+	command.Stderr = &ioErr
 	err = command.Run()
 	if err != nil {
-		logger.Logger.Errorf(defaultErr, err)
+		logger.Logger.Errorf("Fmt %s", fmt.Sprintf(defaultErr, command.Stderr))
+	}
+
+	command = exec.Command("go", "get", "./...")
+	command.Stdout = &out
+	command.Stderr = &ioErr
+	err = command.Run()
+	if err != nil {
+		logger.Logger.Errorf("Go get %s", fmt.Sprintf(defaultErr, command.Stderr))
+	}
+
+	command = exec.Command("sh", "-c", "goimports -w **/*.go")
+	command.Stdout = &out
+	command.Stderr = &ioErr
+	err = command.Run()
+	if err != nil {
+		logger.Logger.Errorf("Goimports %s", fmt.Sprintf(defaultErr, command.Stderr))
 	}
 }

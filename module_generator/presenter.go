@@ -1,13 +1,18 @@
 package modulegenerator
 
 var (
-	projectName   string
-	defaultErr    = "Error: %v"
-	loggerInfo    = "logger.DetailLoggerInfo"
-	loggerErr     = "logger.DetailLoggerError"
-	loggerCtx     = "\nctx,"
-	loggerCmdName = "\ncommandName,"
-	ctx           = "context.Context"
+	projectName        string
+	defaultErr         = "Error: %v"
+	loggerInfo         = "logger.DetailLoggerInfo"
+	loggerErr          = "logger.DetailLoggerError"
+	logErr             = "\nerr,\n"
+	loggerCtx          = "\nctx,"
+	loggerCmdName      = "\ncommandName,"
+	loggerErrExecQuery = "\n\"Error execute query\","
+	ctx                = "context.Context"
+	utils              = "goutils.QueryBuilderInteractor"
+	getTableName       = "GetTableName()"
+	dbqOpts            = "&dbq.Options"
 )
 
 type dtoModule struct {

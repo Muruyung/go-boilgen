@@ -26,7 +26,7 @@ func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
 	}
 
 	if _, err = os.Stat(dto.path + dto.name + ".go"); os.IsNotExist(err) {
-		err = generateDomainRepo(dto)
+		err = generateDomainRepo(dto, isOnly)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return err
@@ -46,7 +46,7 @@ func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
 		}
 		logger.Logger.Info("domain repository wrapper created")
 	} else {
-		return appendDomainRepo(dto.path+dto.name+".go", dto)
+		return appendDomainRepo(dto.path+dto.name+".go", dto, isOnly)
 	}
 
 	return nil
@@ -80,7 +80,7 @@ func generateCommonDomainRepo(dto dtoModule) error {
 	return file.Save(dto.path + "/" + dir + ".go")
 }
 
-func generateDomainRepo(dto dtoModule) error {
+func generateDomainRepo(dto dtoModule, isOnly bool) error {
 	var (
 		file                  = jen.NewFilePathName(dto.path, "repository")
 		upperName             = capitalize(dto.name)
@@ -114,7 +114,7 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["get"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("Get").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
+			jen.Id("Get").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id(utils)).
 				Parens(jen.List(jen.Id(entityName), jen.Error())),
 		)
 	}
@@ -122,9 +122,9 @@ func generateDomainRepo(dto dtoModule) error {
 	if _, ok := dto.methods["getList"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("GetList").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
+			jen.Id("GetList").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id(utils)).
 				Parens(jen.List(jen.Id("[]"+entityName), jen.Error())),
-			jen.Id("GetCount").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
+			jen.Id("GetCount").Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id(utils)).
 				Parens(jen.List(jen.Int(), jen.Error())),
 		)
 	}
@@ -153,10 +153,10 @@ func generateDomainRepo(dto dtoModule) error {
 		)
 	}
 
-	if _, ok := dto.methods["custom"]; ok {
+	if _, ok := dto.methods["custom"]; ok && isOnly {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id(dto.methodName).Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id("goutils.QueryBuilderInteractor")).
+			jen.Id(dto.methodName).Params(jen.Id("ctx").Id(ctx), jen.Id("query").Id(utils)).
 				Parens(jen.List(generatedCustomReturn...)),
 		)
 	}
@@ -169,7 +169,7 @@ func generateDomainRepo(dto dtoModule) error {
 	return file.Save(dto.path + "/" + dir + ".go")
 }
 
-func appendDomainRepo(path string, dto dtoModule) error {
+func appendDomainRepo(path string, dto dtoModule, isOnly bool) error {
 	f, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
@@ -209,7 +209,7 @@ func appendDomainRepo(path string, dto dtoModule) error {
 		insertText += "\nDelete" + fmt.Sprintf("(ctx %s, id %s) %s", ctx, dto.fields["id"], defaultError)
 	}
 
-	if _, ok := dto.methods["custom"]; ok {
+	if _, ok := dto.methods["custom"]; ok && isOnly {
 		var ret string
 		if len(dto.arrReturn) > 1 {
 			ret = "("

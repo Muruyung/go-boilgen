@@ -32,6 +32,20 @@ var initBoilgen = &cobra.Command{
 		if err != nil {
 			logger.Logger.Errorf(defaultErr, err)
 		}
+
+		command = exec.Command("go", "get", "github.com/rocketlaunchr/dbq/v2")
+		command.Stdout = &out
+		err = command.Run()
+		if err != nil {
+			logger.Logger.Errorf(defaultErr, err)
+		}
+
+		command = exec.Command("go", "install", "golang.org/x/tools/cmd/goimports@latest")
+		command.Stdout = &out
+		err = command.Run()
+		if err != nil {
+			logger.Logger.Errorf(defaultErr, err)
+		}
 	},
 }
 

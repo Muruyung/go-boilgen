@@ -1,4 +1,4 @@
-package example_name
+package example_name_usecase
 
 import (
 	"context"
@@ -18,11 +18,11 @@ func (uc *exampleNameInteractor) CreateExampleName(ctx context.Context, dto usec
 	)
 
 	err := uc.ExampleNameSvc.CreateExampleName(ctx, service.DTOExampleName{
+		Name:      dto.Name,
 		Status:    dto.Status,
 		IsActive:  dto.IsActive,
 		TestID:    dto.TestID,
 		StartDate: dto.StartDate,
-		Name:      dto.Name,
 	})
 	if err != nil {
 		logger.DetailLoggerError(

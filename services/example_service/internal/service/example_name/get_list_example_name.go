@@ -1,4 +1,4 @@
-package example_name
+package example_name_service
 
 import (
 	"context"
@@ -47,6 +47,7 @@ func (svc *exampleNameInteractor) GetListExampleName(ctx context.Context, reques
 				ctx,
 				commandName,
 				"Error get total count list",
+
 				err,
 			)
 			return nil, nil, err
