@@ -14,7 +14,7 @@ var (
 		Short:   "Generate core modules with fields",
 		Long:    `This subcommand used to creating core modules (usecase, service, repository, entity)`,
 		Run:     modGen,
-		Version: "1.4.0",
+		Version: "2.0.0",
 	}
 )
 
