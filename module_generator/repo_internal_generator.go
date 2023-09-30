@@ -16,8 +16,6 @@ func internalRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
 		return nil
 	}
 
-	fmt.Println(dto.methods)
-
 	dto.path += "repository" + dto.sep + "mysql" + dto.sep + dto.name
 	var (
 		err error
