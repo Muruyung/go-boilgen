@@ -9,11 +9,11 @@ import (
 
 // DTOExampleName dto for example name service
 type DTOExampleName struct {
+	Name      string
 	Status    int
 	IsActive  bool
 	TestID    int64
 	StartDate time.Time
-	Name      string
 }
 
 // ExampleNameService example name service template

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Muruyung/go-utilities/converter"
 	"github.com/Muruyung/go-utilities/logger"
 	"github.com/rocketlaunchr/dbq/v2"
 
@@ -30,9 +31,9 @@ func (db *mysqlExampleNameRepository) Delete(ctx context.Context, id int) error 
 	defer cancel()
 
 	err = dbq.Tx(ctx, db.mysql, func(tx interface{}, Q dbq.QFn, E dbq.EFn, txCommit dbq.TxCommit) {
-		stmt := fmt.Sprintf(`UPDATE %s SET deletedAt = NOW() where id = ?`, tableName)
+		stmt := fmt.Sprintf(`UPDATE %s SET deleted_at = ? WHERE id = ?`, tableName)
 
-		_, err = E(ctx, stmt, nil, id)
+		_, err = E(ctx, stmt, nil, converter.ConvertDateToString(time.Now()), id)
 		if err != nil {
 			logger.DetailLoggerError(
 				ctx,

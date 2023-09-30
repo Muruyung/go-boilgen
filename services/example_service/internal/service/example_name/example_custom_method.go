@@ -2,7 +2,6 @@ package example_name_service
 
 import (
 	"context"
-
 	"github.com/Muruyung/go-utilities/logger"
 )
 

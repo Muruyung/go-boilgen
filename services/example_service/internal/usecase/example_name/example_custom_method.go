@@ -15,7 +15,7 @@ func (uc *exampleNameInteractor) ExampleCustomMethod(ctx context.Context, exampl
 		nil,
 	)
 
-	exampeReturn, err := uc.ExampleNameSvc.ExampleCustomMethod(ctx, exampleParam)
+	exampleReturn, err := uc.ExampleNameSvc.ExampleCustomMethod(ctx, exampleParam)
 	if err != nil {
 		logger.DetailLoggerError(
 			ctx,
@@ -23,7 +23,7 @@ func (uc *exampleNameInteractor) ExampleCustomMethod(ctx context.Context, exampl
 			"Error example custom method",
 			err,
 		)
-		return exampeReturn, err
+		return exampleReturn, err
 	}
 
 	logger.DetailLoggerInfo(
@@ -32,5 +32,5 @@ func (uc *exampleNameInteractor) ExampleCustomMethod(ctx context.Context, exampl
 		"example custom method success",
 		nil,
 	)
-	return exampeReturn, err
+	return exampleReturn, err
 }

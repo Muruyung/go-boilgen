@@ -18,11 +18,11 @@ func (uc *exampleNameInteractor) CreateExampleName(ctx context.Context, dto usec
 	)
 
 	err := uc.ExampleNameSvc.CreateExampleName(ctx, service.DTOExampleName{
+		TestID:    dto.TestID,
+		StartDate: dto.StartDate,
 		Name:      dto.Name,
 		Status:    dto.Status,
 		IsActive:  dto.IsActive,
-		TestID:    dto.TestID,
-		StartDate: dto.StartDate,
 	})
 	if err != nil {
 		logger.DetailLoggerError(

@@ -697,6 +697,7 @@ func generateDeleteRepo(name, path, services string, fieldID string) error {
 			Id(`"fmt"`).Id("\n").
 			Id(`"time"`).Id("\n").
 			Line().
+			Id(`"github.com/Muruyung/go-utilities/converter"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
@@ -725,9 +726,9 @@ func generateDeleteRepo(name, path, services string, fieldID string) error {
 			jen.Defer().Id("cancel()"),
 			jen.Line(),
 			jen.Id("err = dbq.Tx").Params(jen.Id("ctx"), jen.Id("db.mysql"), jen.Func().Parens(jen.Id("tx interface{}, Q dbq.QFn, E dbq.EFn, txCommit dbq.TxCommit")).Block(
-				jen.Id("stmt := fmt.Sprintf(`UPDATE %s SET deletedAt = NOW() where id = ?`, tableName)"),
+				jen.Id("stmt := fmt.Sprintf(`UPDATE %s SET deleted_at = ? WHERE id = ?`, tableName)"),
 				jen.Line(),
-				jen.Id("_, err = E(ctx, stmt, nil, id)"),
+				jen.Id("_, err = E(ctx, stmt, nil, converter.ConvertDateToString(time.Now()), id)"),
 				jen.If(jen.Id("err").Op("!=").Nil()).Block(
 					jen.Id(loggerErr).Parens(
 						jen.Id(loggerCtx).

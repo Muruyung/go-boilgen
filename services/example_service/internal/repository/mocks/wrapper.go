@@ -9,7 +9,7 @@ type Wrapper struct {
 
 func Init(ctrl *gomock.Controller) Wrapper {
 	return Wrapper{
-		MockModelsCommon:          NewMockModelsCommon(ctrl),
 		MockExampleNameRepository: NewMockExampleNameRepository(ctrl),
+		MockModelsCommon:          NewMockModelsCommon(ctrl),
 	}
 }
