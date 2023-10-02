@@ -408,6 +408,7 @@ func generateGetCountRepo(name, path, services string) error {
 			),
 			jen.Line(),
 			jen.Id("query").Dot(`AddCount("id", "count")`),
+			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
 				jen.Id("SingleResult:").True().Id(","),
