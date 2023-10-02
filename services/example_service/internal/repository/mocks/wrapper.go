@@ -3,13 +3,13 @@ package mocks
 import "github.com/golang/mock/gomock"
 
 type Wrapper struct {
-	*MockModelsCommon
 	*MockExampleNameRepository
+	*MockModelsCommon
 }
 
 func Init(ctrl *gomock.Controller) Wrapper {
 	return Wrapper{
-		MockExampleNameRepository: NewMockExampleNameRepository(ctrl),
 		MockModelsCommon:          NewMockModelsCommon(ctrl),
+		MockExampleNameRepository: NewMockExampleNameRepository(ctrl),
 	}
 }

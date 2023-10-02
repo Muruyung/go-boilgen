@@ -28,6 +28,7 @@ func (db *mysqlExampleNameRepository) GetCount(ctx context.Context, query goutil
 	)
 
 	query.AddCount("id", "count")
+	query.AddWhere("deleted_at", "!=", nil)
 	stmt, val, _ := query.GetQuery(tableName, "")
 	opts := &dbq.Options{
 		SingleResult:   true,

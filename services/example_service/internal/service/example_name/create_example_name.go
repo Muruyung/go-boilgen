@@ -18,11 +18,11 @@ func (svc *exampleNameInteractor) CreateExampleName(ctx context.Context, dto ser
 	)
 
 	entityDTO, err := entity.NewExampleName(entity.DTOExampleName{
+		Name:      dto.Name,
+		Status:    dto.Status,
 		IsActive:  dto.IsActive,
 		TestID:    dto.TestID,
 		StartDate: dto.StartDate,
-		Name:      dto.Name,
-		Status:    dto.Status,
 	})
 	if err != nil {
 		logger.DetailLoggerError(

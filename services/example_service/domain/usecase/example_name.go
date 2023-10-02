@@ -18,8 +18,8 @@ type DTOExampleName struct {
 
 // ExampleNameUseCase example name usecase template
 type ExampleNameUseCase interface {
-	ExampleCustomMethod(ctx context.Context, exampleParam string) (int, error)
 	ExampleCustomMethodDefault(ctx context.Context) error
+	ExampleCustomMethod(ctx context.Context, exampleParam string) (int, error)
 	GetExampleNameByID(ctx context.Context, id int) (*entity.ExampleName, error)
 	GetListExampleName(ctx context.Context, request *goutils.RequestOption) ([]*entity.ExampleName, *goutils.MetaResponse, error)
 	CreateExampleName(ctx context.Context, dto DTOExampleName) error

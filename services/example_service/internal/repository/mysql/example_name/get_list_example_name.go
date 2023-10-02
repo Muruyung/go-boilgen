@@ -29,6 +29,7 @@ func (db *mysqlExampleNameRepository) GetList(ctx context.Context, query goutils
 		data      = make([]interface{}, 0)
 	)
 
+	query.AddWhere("deleted_at", "!=", nil)
 	stmt, val, _ := query.GetQuery(tableName, "")
 	opts := &dbq.Options{
 		SingleResult:   false,

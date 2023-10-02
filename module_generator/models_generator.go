@@ -80,16 +80,16 @@ func generateRepoModels(dto dtoModule) error {
 	generatedFields = append(
 		generatedFields,
 		jen.Id("CreatedAt").Id(timeType).Tag(map[string]string{
-			"json": "created_at",
-			"dbq":  "created_at",
+			"json": "created_at,omitempty",
+			"dbq":  "created_at,omitempty",
 		}),
 		jen.Id("UpdatedAt").Id(timeType).Tag(map[string]string{
-			"json": "updated_at",
-			"dbq":  "updated_at",
+			"json": "updated_at,omitempty",
+			"dbq":  "updated_at,omitempty",
 		}),
 		jen.Id("DeletedAt").Id("*"+timeType).Tag(map[string]string{
-			"json": "deleted_at",
-			"dbq":  "deleted_at",
+			"json": "deleted_at,omitempty",
+			"dbq":  "deleted_at,omitempty",
 		}),
 	)
 

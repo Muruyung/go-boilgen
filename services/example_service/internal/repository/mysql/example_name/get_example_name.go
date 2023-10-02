@@ -31,6 +31,7 @@ func (db *mysqlExampleNameRepository) Get(ctx context.Context, query goutils.Que
 	)
 
 	query.AddPagination(goutils.NewPagination(1, 1))
+	query.AddWhere("deleted_at", "!=", nil)
 	stmt, val, _ := query.GetQuery(tableName, "")
 	opts := &dbq.Options{
 		SingleResult:   true,

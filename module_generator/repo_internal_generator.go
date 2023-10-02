@@ -510,6 +510,8 @@ func generateCreateRepo(name, path, services string) error {
 					Id("arrColumn").Id("=").Id(name+"Mapper.GetColumns()\n").
 					Id("arrValue").Id("=").Id(name+"Mapper.GetValStruct(arrColumn)\n"),
 			),
+			jen.Id("arrColumn").Id("=").Append(jen.Id("arrColumn"), jen.Lit("created_at"), jen.Lit("updated_at")),
+			jen.Id("arrValue").Id("=").Append(jen.Id("arrValue"), jen.Id("time.Now()"), jen.Id("time.Now()")),
 			jen.Line(),
 			jen.Id("ctx, cancel := context.WithTimeout(ctx, 60*time.Second)"),
 			jen.Defer().Id("cancel()"),
@@ -611,9 +613,11 @@ func generateUpdateRepo(name, path, services string, fieldID string) error {
 					Id(name+"Mapper").Id("=").Id("mapper").Dot("New"+upperName+"Mapper(data, nil).MapDomainToModels()\n").
 					Id(modelsVar).Id("=").Id(name+"Mapper.GetModelsMap()\n").
 					Id("arrColumn").Id("=").Id(name+"Mapper.GetColumns()\n").
-					Id("lastIndex").Id("=").Id("len(arrColumn) - 1\n").
 					Id("values").Id("=").Make(jen.Id("[]interface{}"), jen.Lit(0)).Id("\n"),
 			),
+			jen.Id(modelsVar+`["updated_at"]`).Id("= time.Now()"),
+			jen.Id("arrColumn").Id("=").Append(jen.Id("arrColumn"), jen.Lit("updated_at")),
+			jen.Id("lastIndex").Id(":=").Id("len(arrColumn) - 1\n"),
 			jen.Line(),
 			jen.Id("ctx, cancel := context.WithTimeout(ctx, 60*time.Second)"),
 			jen.Defer().Id("cancel()"),

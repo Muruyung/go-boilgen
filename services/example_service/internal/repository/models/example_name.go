@@ -15,9 +15,9 @@ type ExampleNameModels struct {
 	IsActive  bool       `dbq:"is_active" json:"is_active"`
 	TestID    int64      `dbq:"test_id" json:"test_id"`
 	StartDate time.Time  `dbq:"start_date" json:"start_date"`
-	CreatedAt time.Time  `dbq:"created_at" json:"created_at"`
-	UpdatedAt time.Time  `dbq:"updated_at" json:"updated_at"`
-	DeletedAt *time.Time `dbq:"deleted_at" json:"deleted_at"`
+	CreatedAt time.Time  `dbq:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt time.Time  `dbq:"updated_at,omitempty" json:"updated_at,omitempty"`
+	DeletedAt *time.Time `dbq:"deleted_at,omitempty" json:"deleted_at,omitempty"`
 }
 
 // GetTableName get table name of example name models

@@ -29,6 +29,8 @@ func (db *mysqlExampleNameRepository) Save(ctx context.Context, data *entity.Exa
 		arrColumn         = exampleNameMapper.GetColumns()
 		arrValue          = exampleNameMapper.GetValStruct(arrColumn)
 	)
+	arrColumn = append(arrColumn, "created_at", "updated_at")
+	arrValue = append(arrValue, time.Now(), time.Now())
 
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
