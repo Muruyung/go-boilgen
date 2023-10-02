@@ -30,7 +30,8 @@ func modGen(cmd *cobra.Command, args []string) {
 		isUseCaseOnly, _   = strconv.ParseBool(cmd.Flag("usecase-only").Value.String())
 		isWithoutUT, _     = strconv.ParseBool(cmd.Flag("no-unit-test").Value.String())
 		isWithoutEntity, _ = strconv.ParseBool(cmd.Flag("no-entity").Value.String())
-		isUseEntity        = cmd.Flag("fields").Value.String() != "" && !isWithoutEntity
+		isEmptyFields      = cmd.Flag("fields").Value.String() == ""
+		isUseEntity        = !isEmptyFields && !isWithoutEntity
 		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
 	)
 
@@ -97,7 +98,7 @@ func modGen(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if isUseEntity {
+	if !isEmptyFields {
 		err = modelsGenerator(dto, isAll, isModelsOnly || isRepoOnly)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
