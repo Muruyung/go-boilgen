@@ -16,11 +16,21 @@ func parseMethods(args string) (res map[string]bool) {
 		"custom":  true,
 	}
 
+	var methodsChanger = map[string]string{
+		"getlist":    "getList",
+		"save":       "create",
+		"put":        "update",
+		"getDetails": "get",
+		"del":        "delete",
+	}
+
 	res = make(map[string]bool)
 	methods := strings.Split(args, ",")
 	for _, method := range methods {
 		method = strcase.LowerCamelCase(method)
-		if _, ok := availableMethods[method]; ok {
+		if _, ok := methodsChanger[method]; ok {
+			res[methodsChanger[method]] = true
+		} else if _, ok := availableMethods[method]; ok {
 			res[method] = true
 		}
 	}
