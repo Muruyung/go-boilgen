@@ -17,11 +17,13 @@ func parseMethods(args string) (res map[string]bool) {
 	}
 
 	var methodsChanger = map[string]string{
-		"getlist":    "getList",
-		"save":       "create",
-		"put":        "update",
-		"getDetails": "get",
-		"del":        "delete",
+		"getlist":   "getList",
+		"list":      "getList",
+		"save":      "create",
+		"store":     "create",
+		"put":       "update",
+		"getDetail": "get",
+		"del":       "delete",
 	}
 
 	res = make(map[string]bool)

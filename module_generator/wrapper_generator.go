@@ -23,7 +23,13 @@ func generateWrapper(interfaceShort, interfaceName, path string) error {
 	}
 
 	if strings.Contains(interfaceName, "UseCase") {
-		pkgName = "usecase"
+		if strings.Contains(path, "/query/") {
+			pkgName = "query"
+		} else if strings.Contains(path, "/command/") {
+			pkgName = "command"
+		} else {
+			pkgName = "usecase"
+		}
 	}
 
 	var (

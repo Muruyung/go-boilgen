@@ -44,6 +44,9 @@ func init() {
 	rootCmd.PersistentFlags().Bool("usecase-only", false, "Generate usecase only")
 	rootCmd.PersistentFlags().Bool("no-unit-test", false, "Generate without unit test")
 	rootCmd.PersistentFlags().Bool("no-entity", false, "Generate without entity")
+	rootCmd.PersistentFlags().Bool("cqrs", false, "Generate using CQRS pattern")
+	rootCmd.PersistentFlags().Bool("is-query", false, "Generate query for CQRS pattern")
+	rootCmd.PersistentFlags().Bool("is-command", false, "Generate command for CQRS pattern")
 }
 
 func initConfig() {

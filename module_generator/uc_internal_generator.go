@@ -98,17 +98,28 @@ func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
 
 func generateInitUc(name, path, services string, fields map[string]string) error {
 	var (
-		file      = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
-		upperName = capitalize(name)
-		title     = sentences(name)
-		dir       = "init"
+		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
+		upperName  = capitalize(name)
+		title      = sentences(name)
+		dir        = "init"
+		initReturn = "usecase"
+		cqrsImport string
 	)
+
+	if strings.Contains(path, "/query/") {
+		initReturn = "query"
+		cqrsImport = "/query"
+	} else if strings.Contains(path, "/command/") {
+		initReturn = "command"
+		cqrsImport = "/command"
+	}
+
 	name = lowerize(name)
 	interactorName := fmt.Sprintf("%sInteractor", name)
 
 	file.Add(jen.Id("import").Parens(
 		jen.Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
 
 	var (
@@ -120,7 +131,7 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 
 	initName := fmt.Sprintf("New%sUseCase", upperName)
 	file.Commentf("%s initialize new %s use case", initName, title)
-	file.Func().Id(initName).Params(jen.Id("svc").Id("*service.Wrapper")).Id("usecase").Dot(ucName).
+	file.Func().Id(initName).Params(jen.Id("svc").Id("*service.Wrapper")).Id(initReturn).Dot(ucName).
 		Block(
 			jen.Return(
 				jen.Id("&" + interactorName).
@@ -280,8 +291,18 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 		dto             = fmt.Sprintf("DTO%s", upperName)
 		generatedParser = make([]jen.Code, 0)
 		err             error
+		dtoPath         = "usecase"
+		cqrsImport      string
 	)
 	name = lowerize(name)
+
+	if strings.Contains(path, "/query/") {
+		dtoPath = "query"
+		cqrsImport = "/query"
+	} else if strings.Contains(path, "/command/") {
+		dtoPath = "command"
+		cqrsImport = "/command"
+	}
 
 	var (
 		interactorName = fmt.Sprintf("%sInteractor", name)
@@ -302,12 +323,12 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 		jen.Id(`"context"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
 
 	file.Commentf("%s create %s", methodName, title)
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("dto").Id("usecase").Dot(dto)).Error().
+		Params(jen.Id("ctx").Id(ctx), jen.Id("dto").Id(dtoPath).Dot(dto)).Error().
 		Block(
 			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
@@ -359,9 +380,19 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 		svcName         = fmt.Sprintf("%sSvc", upperName)
 		dto             = fmt.Sprintf("DTO%s", upperName)
 		generatedParser = make([]jen.Code, 0)
+		dtoPath         = "usecase"
 		err             error
+		cqrsImport      string
 	)
 	name = lowerize(name)
+
+	if strings.Contains(path, "/query/") {
+		dtoPath = "query"
+		cqrsImport = "/query"
+	} else if strings.Contains(path, "/command/") {
+		dtoPath = "command"
+		cqrsImport = "/command"
+	}
 
 	var (
 		interactorName = fmt.Sprintf("%sInteractor", name)
@@ -383,12 +414,12 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 			Id(`"fmt"`).Id("\n").
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
 
 	file.Commentf("%s update %s", methodName, title)
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"]), jen.Id("dto").Id("usecase").Dot(dto)).Error().
+		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"]), jen.Id("dto").Id(dtoPath).Dot(dto)).Error().
 		Block(
 			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(

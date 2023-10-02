@@ -30,10 +30,27 @@ func modGen(cmd *cobra.Command, args []string) {
 		isUseCaseOnly, _   = strconv.ParseBool(cmd.Flag("usecase-only").Value.String())
 		isWithoutUT, _     = strconv.ParseBool(cmd.Flag("no-unit-test").Value.String())
 		isWithoutEntity, _ = strconv.ParseBool(cmd.Flag("no-entity").Value.String())
+		isCqrs, _          = strconv.ParseBool(cmd.Flag("cqrs").Value.String())
+		isCqrsCommand, _   = strconv.ParseBool(cmd.Flag("is-command").Value.String())
+		isCqrsQuery, _     = strconv.ParseBool(cmd.Flag("is-query").Value.String())
 		isEmptyFields      = cmd.Flag("fields").Value.String() == ""
 		isUseEntity        = !isEmptyFields && !isWithoutEntity
 		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
+		cqrsType           string
 	)
+
+	if _, ok := methods["custom"]; ok && isCqrs {
+		if isCqrsCommand && isCqrsQuery {
+			logger.Logger.Error("choose one cqrs type")
+			return
+		} else if isCqrsQuery {
+			cqrsType = "query"
+		} else if isCqrsCommand {
+			cqrsType = "command"
+		} else {
+			cqrsType = cqrsTypeCheck(methodName)
+		}
+	}
 
 	// if !isUseEntity {
 	// 	fields = nil
@@ -80,7 +97,12 @@ func modGen(cmd *cobra.Command, args []string) {
 
 	//===============internal generator===============
 	dto.path = internalPath
-	err = internalUcGenerator(dto, isAll, isUseCaseOnly)
+
+	if isCqrs {
+		err = internalCqrsUcGenerator(dto, cqrsType, isAll, isUseCaseOnly)
+	} else {
+		err = internalUcGenerator(dto, isAll, isUseCaseOnly)
+	}
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
@@ -123,7 +145,11 @@ func modGen(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	err = domainRepoGenerator(dto, isAll, isRepoOnly)
+	if isCqrs {
+		err = domainCqrsUcGenerator(dto, cqrsType, isAll, isUseCaseOnly)
+	} else {
+		err = domainUcGenerator(dto, isAll, isUseCaseOnly)
+	}
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
@@ -135,7 +161,7 @@ func modGen(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	err = domainUcGenerator(dto, isAll, isUseCaseOnly)
+	err = domainRepoGenerator(dto, isAll, isRepoOnly)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
