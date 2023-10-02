@@ -16,7 +16,6 @@ func modGen(cmd *cobra.Command, args []string) {
 	var (
 		svcName            = cmd.Flag("service").Value.String()
 		name               = strcase.ToSnake(cmd.Flag("name").Value.String())
-		isUseEntity        = cmd.Flag("fields").Value.String() != ""
 		fields, arrFields  = parseFields(cmd.Flag("fields").Value.String(), true)
 		methods            = parseMethods(cmd.Flag("methods").Value.String())
 		methodName         = cmd.Flag("custom-method").Value.String()
@@ -30,12 +29,14 @@ func modGen(cmd *cobra.Command, args []string) {
 		isServiceOnly, _   = strconv.ParseBool(cmd.Flag("service-only").Value.String())
 		isUseCaseOnly, _   = strconv.ParseBool(cmd.Flag("usecase-only").Value.String())
 		isWithoutUT, _     = strconv.ParseBool(cmd.Flag("no-unit-test").Value.String())
+		isWithoutEntity, _ = strconv.ParseBool(cmd.Flag("no-entity").Value.String())
+		isUseEntity        = cmd.Flag("fields").Value.String() != "" && !isWithoutEntity
 		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
 	)
 
-	if !isUseEntity {
-		fields = nil
-	}
+	// if !isUseEntity {
+	// 	fields = nil
+	// }
 
 	if !isUseReturn {
 		returns = nil

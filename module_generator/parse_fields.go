@@ -11,13 +11,13 @@ func parseFields(args string, isEntity bool) (res map[string]string, arrRes []st
 	res = make(map[string]string)
 	arrRes = make([]string, 0)
 
-	if args == "" {
-		return
-	}
-
 	if isEntity {
 		arrRes = append(arrRes, "id")
 		res["id"] = "string"
+	}
+
+	if args == "" {
+		return
 	}
 
 	fields := strings.Split(args, ",")

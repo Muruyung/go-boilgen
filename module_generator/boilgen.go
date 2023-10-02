@@ -43,6 +43,7 @@ func init() {
 	rootCmd.PersistentFlags().Bool("service-only", false, "Generate service only")
 	rootCmd.PersistentFlags().Bool("usecase-only", false, "Generate usecase only")
 	rootCmd.PersistentFlags().Bool("no-unit-test", false, "Generate without unit test")
+	rootCmd.PersistentFlags().Bool("no-entity", false, "Generate without entity")
 }
 
 func initConfig() {
