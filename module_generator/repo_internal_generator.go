@@ -193,6 +193,7 @@ func generateGetRepo(name, path, services string) error {
 			),
 			jen.Line(),
 			jen.Id("query").Dot("AddPagination").Parens(jen.Id("goutils.NewPagination(1, 1)")),
+			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
 				jen.Id("SingleResult:").True().Id(","),
@@ -298,6 +299,7 @@ func generateGetListRepo(name, path, services string) error {
 					Id("data").Id("=").Id("make([]interface{}, 0)\n"),
 			),
 			jen.Line(),
+			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
 				jen.Id("SingleResult:").False().Id(","),

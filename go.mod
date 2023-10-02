@@ -3,7 +3,7 @@ module github.com/Muruyung/go-boilgen
 go 1.20
 
 require (
-	github.com/Muruyung/go-utilities v1.0.7
+	github.com/Muruyung/go-utilities v1.0.8
 	github.com/dave/jennifer v1.7.0
 	github.com/golang/mock v1.6.0
 	github.com/iancoleman/strcase v0.3.0
