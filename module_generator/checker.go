@@ -12,6 +12,8 @@ var (
 		"Put",
 		"Post",
 		"Insert",
+		"Save",
+		"Remove",
 	}
 )
 
