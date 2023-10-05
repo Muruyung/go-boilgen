@@ -30,10 +30,8 @@ func (db *mysqlExampleNameRepository) Update(ctx context.Context, id int, data *
 		exampleNameModels = exampleNameMapper.GetModelsMap()
 		arrColumn         = exampleNameMapper.GetColumns()
 		values            = make([]interface{}, 0)
+		lastIndex         = len(arrColumn) - 1
 	)
-	exampleNameModels["updated_at"] = time.Now()
-	arrColumn = append(arrColumn, "updated_at")
-	lastIndex := len(arrColumn) - 1
 
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()

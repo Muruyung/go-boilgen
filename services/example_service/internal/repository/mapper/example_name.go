@@ -1,10 +1,13 @@
 package mapper
 
 import (
+	"time"
+
+	"github.com/Muruyung/go-utilities/logger"
+
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/entity"
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/repository"
 	"github.com/Muruyung/go-boilgen/services/example_service/internal/repository/models"
-	"github.com/Muruyung/go-utilities/logger"
 )
 
 type exampleNameMapperInteractor struct {
@@ -29,6 +32,8 @@ func (mapper *exampleNameMapperInteractor) MapDomainToModels() repository.Models
 		IsActive:  mapper.exampleNameEntity.GetIsActive(),
 		TestID:    mapper.exampleNameEntity.GetTestID(),
 		StartDate: mapper.exampleNameEntity.GetStartDate(),
+		CreatedAt: mapper.exampleNameEntity.GetCreatedAt(),
+		UpdatedAt: time.Now(),
 	}
 	return repoModels
 }

@@ -32,7 +32,6 @@ func (db *mysqlExampleNameRepository) Delete(ctx context.Context, id int) error 
 
 	err = dbq.Tx(ctx, db.mysql, func(tx interface{}, Q dbq.QFn, E dbq.EFn, txCommit dbq.TxCommit) {
 		stmt := fmt.Sprintf(`UPDATE %s SET deleted_at = ? WHERE id = ?`, tableName)
-
 		_, err = E(ctx, stmt, nil, converter.ConvertDateToString(time.Now()), id)
 		if err != nil {
 			logger.DetailLoggerError(

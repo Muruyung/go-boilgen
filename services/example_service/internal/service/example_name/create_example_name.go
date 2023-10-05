@@ -2,9 +2,11 @@ package example_name_service
 
 import (
 	"context"
+
+	"github.com/Muruyung/go-utilities/logger"
+
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/entity"
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/service"
-	"github.com/Muruyung/go-utilities/logger"
 )
 
 // CreateExampleName create example name

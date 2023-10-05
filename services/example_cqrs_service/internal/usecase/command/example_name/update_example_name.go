@@ -19,11 +19,11 @@ func (uc *exampleNameInteractor) UpdateExampleName(ctx context.Context, id int, 
 	)
 
 	err := uc.ExampleNameSvc.UpdateExampleName(ctx, id, service.DTOExampleName{
-		TestID:    dto.TestID,
-		StartDate: dto.StartDate,
 		Name:      dto.Name,
 		Status:    dto.Status,
 		IsActive:  dto.IsActive,
+		TestID:    dto.TestID,
+		StartDate: dto.StartDate,
 	})
 	if err != nil {
 		logger.DetailLoggerError(

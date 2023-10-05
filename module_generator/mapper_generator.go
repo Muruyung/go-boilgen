@@ -71,9 +71,12 @@ func generateRepoMapper(dto dtoModule) error {
 	)
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, dto.services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n").
+		jen.Id(`"time"`).Id("\n").
+			Line().
 			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Line().
+			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n").
+			Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, dto.services)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/internal/repository/models"`, projectName, dto.services)).Id("\n"),
 	))
 
@@ -115,6 +118,12 @@ func generateRepoMapper(dto dtoModule) error {
 			jen.Id(upperCaseField).Op(":").Id("mapper").Dot(modelsName).Dot(upperCaseField).Id(","),
 		)
 	}
+
+	generatedDomToMod = append(
+		generatedDomToMod,
+		jen.Id("CreatedAt").Op(":").Id("mapper").Dot(entityName).Dot("GetCreatedAt()").Id(","),
+		jen.Id("UpdatedAt").Op(":").Id("time.Now(),"),
+	)
 
 	file.Commentf("MapDomainToModels map domain to models %s", title)
 	file.Func().Params(jen.Id("mapper").Id("*"+interactorName)).Id("MapDomainToModels()").Id("repository.ModelsCommon").Block(

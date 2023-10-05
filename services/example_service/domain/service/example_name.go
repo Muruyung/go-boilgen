@@ -9,17 +9,17 @@ import (
 
 // DTOExampleName dto for example name service
 type DTOExampleName struct {
+	Name      string
 	Status    int
 	IsActive  bool
 	TestID    int64
 	StartDate time.Time
-	Name      string
 }
 
 // ExampleNameService example name service template
 type ExampleNameService interface {
-	ExampleCustomMethodDefault(ctx context.Context) error
 	ExampleCustomMethod(ctx context.Context, exampleParam string) (int, error)
+	ExampleCustomMethodDefault(ctx context.Context) error
 	GetExampleNameByID(ctx context.Context, id int) (*entity.ExampleName, error)
 	GetListExampleName(ctx context.Context, request *goutils.RequestOption) ([]*entity.ExampleName, *goutils.MetaResponse, error)
 	CreateExampleName(ctx context.Context, dto DTOExampleName) error

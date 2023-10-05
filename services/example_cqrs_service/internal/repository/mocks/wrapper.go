@@ -3,8 +3,8 @@ package mocks
 import "github.com/golang/mock/gomock"
 
 type Wrapper struct {
-	*MockExampleNameRepository
 	*MockModelsCommon
+	*MockExampleNameRepository
 }
 
 func Init(ctrl *gomock.Controller) Wrapper {
