@@ -1,5 +1,26 @@
 package modulegenerator
 
+// flag field
+var (
+	svcName         string
+	name            string
+	varField        string
+	varMethod       string
+	methodName      string
+	varParam        string
+	varReturn       string
+	isModelsOnly    bool
+	isEntityOnly    bool
+	isRepoOnly      bool
+	isServiceOnly   bool
+	isUseCaseOnly   bool
+	isWithoutUT     bool
+	isWithoutEntity bool
+	isCqrs          bool
+	isCqrsQuery     bool
+	isCqrsCommand   bool
+)
+
 var (
 	projectName        string
 	defaultErr         = "Error: %v"

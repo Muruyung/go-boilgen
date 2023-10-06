@@ -41,7 +41,7 @@ func parseFields(args string, isEntity bool) (res map[string]string, arrRes []st
 
 			res[name] = fieldType
 
-			if name != "id" {
+			if name != "id" || !isEntity {
 				arrRes = append(arrRes, name)
 			}
 		}

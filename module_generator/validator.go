@@ -19,3 +19,12 @@ func validate(dto dtoModule) (err error) {
 
 	return
 }
+
+func yesOrNo(char rune) bool {
+	switch char {
+	case 'N', 'n':
+		return false
+	default:
+		return true
+	}
+}

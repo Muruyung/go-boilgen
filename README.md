@@ -34,6 +34,12 @@ go install github.com/RanguraGIT/genut@v1.0.0-release
 
 ## Command
 
+**NEW**: Now you can use go-boilgen interactively using this command
+
+```sh
+go-boilgen run
+```
+
 This is example basic command using default method
 
 ```bash

@@ -5,39 +5,27 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 
 	"github.com/Muruyung/go-utilities/logger"
-	"github.com/iancoleman/strcase"
-	"github.com/spf13/cobra"
 )
 
-func modGen(cmd *cobra.Command, args []string) {
+func modGen() {
 	var (
-		svcName            = cmd.Flag("service").Value.String()
-		name               = strcase.ToSnake(cmd.Flag("name").Value.String())
-		fields, arrFields  = parseFields(cmd.Flag("fields").Value.String(), true)
-		methods            = parseMethods(cmd.Flag("methods").Value.String())
-		methodName         = cmd.Flag("custom-method").Value.String()
-		isUseReturn        = cmd.Flag("return").Value.String() != ""
-		params, arrParams  = parseFields(cmd.Flag("params").Value.String(), false)
-		returns, arrReturn = parseFields(cmd.Flag("return").Value.String(), false)
-		separator          = string(os.PathSeparator)
-		isModelsOnly, _    = strconv.ParseBool(cmd.Flag("models-only").Value.String())
-		isEntityOnly, _    = strconv.ParseBool(cmd.Flag("entity-only").Value.String())
-		isRepoOnly, _      = strconv.ParseBool(cmd.Flag("repo-only").Value.String())
-		isServiceOnly, _   = strconv.ParseBool(cmd.Flag("service-only").Value.String())
-		isUseCaseOnly, _   = strconv.ParseBool(cmd.Flag("usecase-only").Value.String())
-		isWithoutUT, _     = strconv.ParseBool(cmd.Flag("no-unit-test").Value.String())
-		isWithoutEntity, _ = strconv.ParseBool(cmd.Flag("no-entity").Value.String())
-		isCqrs, _          = strconv.ParseBool(cmd.Flag("cqrs").Value.String())
-		isCqrsCommand, _   = strconv.ParseBool(cmd.Flag("is-command").Value.String())
-		isCqrsQuery, _     = strconv.ParseBool(cmd.Flag("is-query").Value.String())
-		isEmptyFields      = cmd.Flag("fields").Value.String() == ""
+		fields, arrFields  = parseFields(varField, true)
+		methods            = parseMethods(varMethod)
+		params, arrParams  = parseFields(varParam, false)
+		returns, arrReturn = parseFields(varReturn, false)
+		isUseReturn        = varReturn != ""
+		isEmptyFields      = varField == ""
 		isUseEntity        = !isEmptyFields && !isWithoutEntity
 		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
+		separator          = string(os.PathSeparator)
 		cqrsType           string
 	)
+
+	fmt.Println(varParam)
+	fmt.Println(params)
+	fmt.Println(arrParams)
 
 	if _, ok := methods["custom"]; ok && isCqrs {
 		if isCqrsCommand && isCqrsQuery {
@@ -206,7 +194,7 @@ func modGen(cmd *cobra.Command, args []string) {
 	command.Stderr = &ioErr
 	err = command.Run()
 	if err != nil {
-		logger.Logger.Errorf("Go get %s", fmt.Sprintf(defaultErr, command.Stderr))
+		logger.Logger.Warnf("Go get %s", fmt.Sprintf(defaultErr, command.Stderr))
 	}
 
 	command = exec.Command("sh", "-c", "goimports -w **/*.go")
@@ -214,6 +202,6 @@ func modGen(cmd *cobra.Command, args []string) {
 	command.Stderr = &ioErr
 	err = command.Run()
 	if err != nil {
-		logger.Logger.Errorf("Goimports %s", fmt.Sprintf(defaultErr, command.Stderr))
+		logger.Logger.Warnf("Goimports %s", fmt.Sprintf(defaultErr, command.Stderr))
 	}
 }
