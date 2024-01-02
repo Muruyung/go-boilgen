@@ -24,7 +24,7 @@ func (db *mysqlExampleNameRepository) GetCount(ctx context.Context, query utils.
 	var (
 		err       error
 		tableName = models.ExampleNameModels{}.GetTableName()
-		count     map[string]int
+		count     *map[string]int
 	)
 
 	query.AddCount("id", "count")
@@ -48,7 +48,7 @@ func (db *mysqlExampleNameRepository) GetCount(ctx context.Context, query utils.
 	}
 
 	if result != nil {
-		count = result.(map[string]int)
+		count = result.(*map[string]int)
 	} else {
 		err = fmt.Errorf("example name data not found")
 		logger.DetailLoggerError(
@@ -66,5 +66,5 @@ func (db *mysqlExampleNameRepository) GetCount(ctx context.Context, query utils.
 		"Get count example name success",
 		count,
 	)
-	return count["count"], nil
+	return (*count)["count"], nil
 }

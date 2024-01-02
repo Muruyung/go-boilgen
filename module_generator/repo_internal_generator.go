@@ -163,7 +163,7 @@ func generateGetRepo(name, path, services string) error {
 		jen.Id("\n").Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
 			Line().
-			Id(`goutils "github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
@@ -193,7 +193,7 @@ func generateGetRepo(name, path, services string) error {
 			),
 			jen.Line(),
 			jen.Id("query").Dot("AddPagination").Parens(jen.Id("utils.NewPagination(1, 1)")),
-			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
+			jen.Id("query").Dot(`AddWhere("deleted_at", "=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
 				jen.Id("SingleResult:").True().Id(","),
@@ -261,7 +261,6 @@ func generateGetListRepo(name, path, services string) error {
 	var (
 		modelsName     = fmt.Sprintf("models.%sModels", upperName)
 		modelsVar      = fmt.Sprintf("%sModels", name)
-		modelVar       = fmt.Sprintf("%sModel", name)
 		repoName       = fmt.Sprintf("%sRepository", upperName)
 		interactorName = fmt.Sprintf("mysql%s", repoName)
 		embedStruct    = fmt.Sprintf("*%s", interactorName)
@@ -271,7 +270,7 @@ func generateGetListRepo(name, path, services string) error {
 		jen.Id("\n").Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
 			Line().
-			Id(`goutils "github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
@@ -299,7 +298,7 @@ func generateGetListRepo(name, path, services string) error {
 					Id("data").Id("=").Id("make([]interface{}, 0)\n"),
 			),
 			jen.Line(),
-			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
+			jen.Id("query").Dot(`AddWhere("deleted_at", "=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
 				jen.Id("SingleResult:").False().Id(","),
@@ -318,7 +317,7 @@ func generateGetListRepo(name, path, services string) error {
 				jen.Return(jen.Nil(), jen.Id("err")),
 			),
 			jen.Line(),
-			jen.Id(modelsVar).Id(":=").Id("result.([]interface{})"),
+			jen.Id(modelsVar).Id(":=").Id(fmt.Sprintf("result.([]*%s)", modelsName)),
 			jen.If(jen.Len(jen.Id(modelsVar)).Id("== 0")).Block(
 				jen.Id("err").Id("=").Id("fmt.Errorf").Parens(jen.Lit(title+" list data not found")),
 				jen.Id(loggerErr).Parens(
@@ -332,10 +331,9 @@ func generateGetListRepo(name, path, services string) error {
 			jen.Line(),
 			jen.Id(name).Id(":=").Make(jen.Id("[]*"+entityName), jen.Len(jen.Id(modelsVar))),
 			jen.For(jen.Id("key, val").Op(":=").Range().Id(modelsVar)).Block(
-				jen.Id(modelVar).Id(":=").Id("val.").Parens(jen.Id("*"+modelsName)),
-				jen.Id("data").Id("=").Append(jen.Id("data"), jen.Id(modelVar+".GetModelsMap()")),
-				jen.Id(name+"[key]").Id("=").Id("&"+entityName+"{}"),
-				jen.Id(name+"Mapper").Id(":=").Id("mapper").Dot("New"+upperName+"Mapper").Params(jen.Nil(), jen.Id(modelVar)),
+				jen.Id("data").Id("=").Append(jen.Id("data"), jen.Id("val.GetModelsMap()")),
+				jen.Id(name+"[key]").Id("=").New(jen.Id(entityName)),
+				jen.Id(name+"Mapper").Id(":=").Id("mapper").Dot("New"+upperName+"Mapper").Params(jen.Nil(), jen.Id("val")),
 				jen.Id(name+"Mapper").Dot("MapModelsToDomain").Parens(jen.Id(name+"[key]")),
 			),
 			jen.Line(),
@@ -381,7 +379,7 @@ func generateGetCountRepo(name, path, services string) error {
 		jen.Id("\n").Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
 			Line().
-			Id(`goutils "github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
@@ -404,7 +402,7 @@ func generateGetCountRepo(name, path, services string) error {
 			jen.Var().Parens(
 				jen.Id("\nerr").Error().Id("\n").
 					Id("tableName").Id("=").Id(modelsName+"{}").Dot(getTableName).Id("\n").
-					Id("count").Id(mapInt).Id("\n"),
+					Id("count").Id("*"+mapInt).Id("\n"),
 			),
 			jen.Line(),
 			jen.Id("query").Dot(`AddCount("id", "count")`),
@@ -428,7 +426,7 @@ func generateGetCountRepo(name, path, services string) error {
 			),
 			jen.Line(),
 			jen.If(jen.Id("result").Op("!=").Nil()).Block(
-				jen.Id("count").Id("=").Id("result.").Parens(jen.Id(mapInt)),
+				jen.Id("count").Id("=").Id("result.").Parens(jen.Id("*"+mapInt)),
 			).Else().Block(
 				jen.Id("err").Id("=").Id("fmt.Errorf").Parens(jen.Lit(title+" data not found")),
 				jen.Id(loggerErr).Parens(
@@ -446,7 +444,7 @@ func generateGetCountRepo(name, path, services string) error {
 					Id("\n"+fmt.Sprintf(`"Get count %s success",`, title)).
 					Id("\n").Id("count,\n"),
 			),
-			jen.Return(jen.Id(`count["count"]`), jen.Nil()),
+			jen.Return(jen.Id(`(*count)["count"]`), jen.Nil()),
 		)
 
 	dir = path + "/get_count_" + dir + ".go"
