@@ -14,7 +14,7 @@ var (
 		Short:   "Generate core modules with fields",
 		Long:    `This command used to creating core modules (usecase, service, repository, entity)`,
 		Run:     execBoilgen,
-		Version: "1.7.0",
+		Version: "1.7.1",
 	}
 )
 
