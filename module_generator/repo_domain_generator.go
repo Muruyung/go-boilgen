@@ -96,7 +96,7 @@ func generateDomainRepo(dto dtoModule, isOnly bool) error {
 
 	importList := jen.Id("\n").
 		Id(`"context"`).Id("\n").
-		Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n").
+		Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n").
 		Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n")
 
 	if isExists.isTimeExists {
@@ -184,7 +184,7 @@ func appendDomainRepo(path string, dto dtoModule, isOnly bool) error {
 		insertText      string
 		upperName       = capitalize(dto.name)
 		entityName      = fmt.Sprintf("*entity.%s", upperName)
-		defaultParamGet = fmt.Sprintf("(ctx %s, query goutils.QueryBuilderInteractor)", ctx)
+		defaultParamGet = fmt.Sprintf("(ctx %s, query utils.QueryBuilderInteractor)", ctx)
 		defaultError    = "error"
 	)
 

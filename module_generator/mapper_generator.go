@@ -73,7 +73,7 @@ func generateRepoMapper(dto dtoModule) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"time"`).Id("\n").
 			Line().
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, dto.services)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, dto.services)).Id("\n").

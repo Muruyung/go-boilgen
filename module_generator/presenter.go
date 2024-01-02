@@ -31,7 +31,7 @@ var (
 	loggerCmdName      = "\ncommandName,"
 	loggerErrExecQuery = "\n\"Error execute query\","
 	ctx                = "context.Context"
-	utils              = "goutils.QueryBuilderInteractor"
+	utils              = "utils.QueryBuilderInteractor"
 	getTableName       = "GetTableName()"
 	dbqOpts            = "&dbq.Options"
 )

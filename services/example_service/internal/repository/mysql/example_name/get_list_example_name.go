@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	goutils "github.com/Muruyung/go-utilities"
 	"github.com/Muruyung/go-utilities/logger"
 	"github.com/rocketlaunchr/dbq/v2"
 
+	"github.com/Muruyung/go-boilgen/pkg/utils"
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/entity"
 	"github.com/Muruyung/go-boilgen/services/example_service/internal/repository/mapper"
 	"github.com/Muruyung/go-boilgen/services/example_service/internal/repository/models"
 )
 
 // GetList get list data example name
-func (db *mysqlExampleNameRepository) GetList(ctx context.Context, query goutils.QueryBuilderInteractor) ([]*entity.ExampleName, error) {
+func (db *mysqlExampleNameRepository) GetList(ctx context.Context, query utils.QueryBuilderInteractor) ([]*entity.ExampleName, error) {
 	const commandName = "REPO-GET-LIST-EXAMPLE-NAME"
 	logger.DetailLoggerInfo(
 		ctx,

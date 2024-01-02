@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	goutils "github.com/Muruyung/go-utilities"
 	"github.com/Muruyung/go-utilities/logger"
 	"github.com/rocketlaunchr/dbq/v2"
 
+	"github.com/Muruyung/go-boilgen/pkg/utils"
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/entity"
 	"github.com/Muruyung/go-boilgen/services/example_service/internal/repository/mapper"
 	"github.com/Muruyung/go-boilgen/services/example_service/internal/repository/models"
 )
 
 // Get get single data example name
-func (db *mysqlExampleNameRepository) Get(ctx context.Context, query goutils.QueryBuilderInteractor) (*entity.ExampleName, error) {
+func (db *mysqlExampleNameRepository) Get(ctx context.Context, query utils.QueryBuilderInteractor) (*entity.ExampleName, error) {
 	const commandName = "REPO-GET-EXAMPLE-NAME"
 	logger.DetailLoggerInfo(
 		ctx,
@@ -30,7 +30,7 @@ func (db *mysqlExampleNameRepository) Get(ctx context.Context, query goutils.Que
 		exampleNameModel *models.ExampleNameModels
 	)
 
-	query.AddPagination(goutils.NewPagination(1, 1))
+	query.AddPagination(utils.NewPagination(1, 1))
 	query.AddWhere("deleted_at", "!=", nil)
 	stmt, val, _ := query.GetQuery(tableName, "")
 	opts := &dbq.Options{

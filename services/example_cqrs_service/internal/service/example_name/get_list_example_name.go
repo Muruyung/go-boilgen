@@ -2,13 +2,14 @@ package example_name_service
 
 import (
 	"context"
+
+	"github.com/Muruyung/go-boilgen/pkg/utils"
 	"github.com/Muruyung/go-boilgen/services/example_cqrs_service/domain/entity"
-	goutils "github.com/Muruyung/go-utilities"
 	"github.com/Muruyung/go-utilities/logger"
 )
 
 // GetListExampleName get list example name
-func (svc *exampleNameInteractor) GetListExampleName(ctx context.Context, request *goutils.RequestOption) ([]*entity.ExampleName, *goutils.MetaResponse, error) {
+func (svc *exampleNameInteractor) GetListExampleName(ctx context.Context, request *utils.RequestOption) ([]*entity.ExampleName, *utils.MetaResponse, error) {
 	const commandName = "SVC-GET-LIST-EXAMPLE-NAME"
 	logger.DetailLoggerInfo(
 		ctx,
@@ -18,9 +19,9 @@ func (svc *exampleNameInteractor) GetListExampleName(ctx context.Context, reques
 	)
 
 	var (
-		query           = goutils.NewQueryBuilder()
-		queryPagination = goutils.NewQueryBuilder()
-		metaRes         *goutils.MetaResponse
+		query           = utils.NewQueryBuilder()
+		queryPagination = utils.NewQueryBuilder()
+		metaRes         *utils.MetaResponse
 		page            int
 		limit           int
 	)
@@ -53,7 +54,7 @@ func (svc *exampleNameInteractor) GetListExampleName(ctx context.Context, reques
 			return nil, nil, err
 		}
 
-		var meta = goutils.MapMetaResponse(totalCount, len(res), page, limit)
+		var meta = utils.MapMetaResponse(totalCount, len(res), page, limit)
 		metaRes = &meta
 	}
 

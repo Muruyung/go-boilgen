@@ -165,7 +165,7 @@ func generateGetUc(name, path, services, idFieldType string) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
 
@@ -232,15 +232,15 @@ func generateGetListUc(name, path, services string) error {
 
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
-			Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
 
 	file.Commentf("%s get list %s", methodName, title)
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
-		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*goutils.RequestOption")).
-		Parens(jen.List(jen.Id(entityName), jen.Id("*goutils.MetaResponse"), jen.Error())).
+		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
+		Parens(jen.List(jen.Id(entityName), jen.Id("*utils.MetaResponse"), jen.Error())).
 		Block(
 			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
 			jen.Id(loggerInfo).Parens(
@@ -321,7 +321,7 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
@@ -412,7 +412,7 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
@@ -481,7 +481,7 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 	file.Add(jen.Id("import").Parens(
 		jen.Id(`"context"`).Id("\n").
 			Id(`"fmt"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n"),
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n"),
 	))
 
 	file.Commentf("%s update %s", methodName, title)
@@ -561,11 +561,11 @@ func generateCustomUc(dto dtoModule) error {
 	}
 
 	if isExists.isUtilsExists {
-		importList = importList.Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n")
+		importList = importList.Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(
-		importList.Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n"),
+		importList.Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n"),
 	))
 
 	blockCode := []jen.Code{

@@ -164,7 +164,7 @@ func generateGetRepo(name, path, services string) error {
 			Id(`"fmt"`).Id("\n").
 			Line().
 			Id(`goutils "github.com/Muruyung/go-utilities"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n").
@@ -192,7 +192,7 @@ func generateGetRepo(name, path, services string) error {
 					Id(modelVar).Id("*"+modelsName).Id("\n"),
 			),
 			jen.Line(),
-			jen.Id("query").Dot("AddPagination").Parens(jen.Id("goutils.NewPagination(1, 1)")),
+			jen.Id("query").Dot("AddPagination").Parens(jen.Id("utils.NewPagination(1, 1)")),
 			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
@@ -272,7 +272,7 @@ func generateGetListRepo(name, path, services string) error {
 			Id(`"fmt"`).Id("\n").
 			Line().
 			Id(`goutils "github.com/Muruyung/go-utilities"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n").
@@ -382,7 +382,7 @@ func generateGetCountRepo(name, path, services string) error {
 			Id(`"fmt"`).Id("\n").
 			Line().
 			Id(`goutils "github.com/Muruyung/go-utilities"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/internal/repository/models"`, projectName, services)).Id("\n"),
@@ -482,7 +482,7 @@ func generateCreateRepo(name, path, services string) error {
 		jen.Id("\n").Id(`"context"`).Id("\n").
 			Id(`"time"`).Id("\n").
 			Line().
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n").
@@ -585,7 +585,7 @@ func generateUpdateRepo(name, path, services string, fieldID string) error {
 			Id(`"fmt"`).Id("\n").
 			Id(`"time"`).Id("\n").
 			Line().
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n").
@@ -702,7 +702,7 @@ func generateDeleteRepo(name, path, services string, fieldID string) error {
 			Id(`"time"`).Id("\n").
 			Line().
 			Id(`"github.com/Muruyung/go-utilities/converter"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n").
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(`"github.com/rocketlaunchr/dbq/v2"`).Id("\n").
 			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/internal/repository/models"`, projectName, services)).Id("\n"),

@@ -50,7 +50,7 @@ func generateEntity(dto dtoModule) error {
 	file.Add(jen.Id("import").Parens(
 		jen.Id("\n").
 			Id(`"time"`).Id("\n").
-			Id(`"github.com/Muruyung/go-utilities/logger"`).Id("\n"),
+			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n"),
 	))
 
 	var (

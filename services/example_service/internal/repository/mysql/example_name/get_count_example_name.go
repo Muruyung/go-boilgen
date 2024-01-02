@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	goutils "github.com/Muruyung/go-utilities"
 	"github.com/Muruyung/go-utilities/logger"
 	"github.com/rocketlaunchr/dbq/v2"
 
+	"github.com/Muruyung/go-boilgen/pkg/utils"
 	"github.com/Muruyung/go-boilgen/services/example_service/internal/repository/models"
 )
 
 // GetCount get count data example name
-func (db *mysqlExampleNameRepository) GetCount(ctx context.Context, query goutils.QueryBuilderInteractor) (int, error) {
+func (db *mysqlExampleNameRepository) GetCount(ctx context.Context, query utils.QueryBuilderInteractor) (int, error) {
 	const commandName = "REPO-GET-COUNT-EXAMPLE-NAME"
 	logger.DetailLoggerInfo(
 		ctx,

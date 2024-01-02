@@ -130,7 +130,7 @@ func generateQueryDomainUc(dto dtoModule, isQuery bool) error {
 	}
 
 	if ok2 || isExists.isUtilsExists {
-		importList = importList.Id(`goutils"github.com/Muruyung/go-utilities"`).Id("\n")
+		importList = importList.Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n")
 	}
 
 	file.Add(jen.Id("import").Parens(
@@ -148,8 +148,8 @@ func generateQueryDomainUc(dto dtoModule, isQuery bool) error {
 	if _, ok := dto.methods["getList"]; ok {
 		generatedMethods = append(
 			generatedMethods,
-			jen.Id("GetList"+upperName).Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*goutils.RequestOption")).
-				Parens(jen.List(jen.Id("[]"+entityName), jen.Id("*goutils.MetaResponse"), jen.Error())),
+			jen.Id("GetList"+upperName).Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
+				Parens(jen.List(jen.Id("[]"+entityName), jen.Id("*utils.MetaResponse"), jen.Error())),
 		)
 	}
 
@@ -272,7 +272,7 @@ func appendQueryDomainUc(path string, dto dtoModule, isQuery bool) error {
 	}
 
 	if _, ok := dto.methods["getList"]; ok {
-		insertText += "\nGetList" + upperName + fmt.Sprintf("(ctx %s, request *goutils.RequestOption)([]%s, *goutils.MetaResponse, %s)", ctx, entityName, defaultError)
+		insertText += "\nGetList" + upperName + fmt.Sprintf("(ctx %s, request *utils.RequestOption)([]%s, *utils.MetaResponse, %s)", ctx, entityName, defaultError)
 	}
 
 	if _, ok := dto.methods["custom"]; ok && isQuery {

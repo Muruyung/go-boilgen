@@ -2,13 +2,14 @@ package example_name_usecase
 
 import (
 	"context"
+
+	"github.com/Muruyung/go-boilgen/pkg/utils"
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/entity"
-	goutils "github.com/Muruyung/go-utilities"
 	"github.com/Muruyung/go-utilities/logger"
 )
 
 // GetListExampleName get list example name
-func (uc *exampleNameInteractor) GetListExampleName(ctx context.Context, request *goutils.RequestOption) ([]*entity.ExampleName, *goutils.MetaResponse, error) {
+func (uc *exampleNameInteractor) GetListExampleName(ctx context.Context, request *utils.RequestOption) ([]*entity.ExampleName, *utils.MetaResponse, error) {
 	const commandName = "UC-GET-LIST-EXAMPLE-NAME"
 	logger.DetailLoggerInfo(
 		ctx,

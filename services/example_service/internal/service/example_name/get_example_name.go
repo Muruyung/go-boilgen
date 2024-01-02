@@ -3,8 +3,9 @@ package example_name_service
 import (
 	"context"
 	"fmt"
+
+	"github.com/Muruyung/go-boilgen/pkg/utils"
 	"github.com/Muruyung/go-boilgen/services/example_service/domain/entity"
-	goutils "github.com/Muruyung/go-utilities"
 	"github.com/Muruyung/go-utilities/logger"
 )
 
@@ -18,7 +19,7 @@ func (svc *exampleNameInteractor) GetExampleNameByID(ctx context.Context, id int
 		nil,
 	)
 
-	var query = goutils.NewQueryBuilder()
+	var query = utils.NewQueryBuilder()
 	query.AddWhere("id", "=", "int")
 	res, err := svc.repo.ExampleNameRepo.Get(ctx, query)
 	if err != nil {
