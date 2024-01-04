@@ -112,9 +112,7 @@ func generateInitRepo(name, path, services string, fields map[string]string) err
 	)
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, services)).Id("\n").
-			Line().
-			Id(`"database/sql"`).Id("\n"),
+		jen.Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, services)).Id("\n"),
 	))
 
 	var (
@@ -122,16 +120,16 @@ func generateInitRepo(name, path, services string, fields map[string]string) err
 		interactorName = fmt.Sprintf("mysql%s", repoName)
 	)
 	file.Type().Id(interactorName).Struct(
-		jen.Id("mysql").Id("*sql.DB"),
+		jen.Id("sql").Id("repository.SqlTx"),
 	)
 
 	initName := fmt.Sprintf("New%sRepository", upperName)
 	file.Commentf("%s initialize new %s repository", initName, title)
-	file.Func().Id(initName).Params(jen.Id("db").Id("*sql.DB")).Id("repository").Dot(repoName).Block(
+	file.Func().Id(initName).Params(jen.Id("db").Id("repository.SqlTx")).Id("repository").Dot(repoName).Block(
 		jen.Return(
 			jen.Id("&" + interactorName).
 				Block(
-					jen.Id("mysql").Op(":").Id("db,"),
+					jen.Id("sql").Op(":").Id("db,"),
 				),
 		),
 	)
@@ -201,7 +199,7 @@ func generateGetRepo(name, path, services string) error {
 				jen.Id("DecoderConfig:").Id("dbq.StdTimeConversionConfig(),"),
 			),
 			jen.Line(),
-			jen.Id("result, err").Id(":=").Id("dbq.Q").Parens(jen.Id("ctx, db.mysql, stmt, opts, val...")),
+			jen.Id("result, err").Id(":=").Id("dbq.Q").Parens(jen.Id("ctx, db.sql.DB(), stmt, opts, val...")),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -306,7 +304,7 @@ func generateGetListRepo(name, path, services string) error {
 				jen.Id("DecoderConfig:").Id("dbq.StdTimeConversionConfig(),"),
 			),
 			jen.Line(),
-			jen.Id("result, err").Id(":=").Id("dbq.Q").Parens(jen.Id("ctx, db.mysql, stmt, opts, val...")),
+			jen.Id("result, err").Id(":=").Id("dbq.Q").Parens(jen.Id("ctx, db.sql.DB(), stmt, opts, val...")),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -406,7 +404,7 @@ func generateGetCountRepo(name, path, services string) error {
 			),
 			jen.Line(),
 			jen.Id("query").Dot(`AddCount("id", "count")`),
-			jen.Id("query").Dot(`AddWhere("deleted_at", "!=", nil)`),
+			jen.Id("query").Dot(`AddWhere("deleted_at", "=", nil)`),
 			jen.Id("stmt, val, _").Id(":=").Id("query").Dot(`GetQuery(tableName, "")`),
 			jen.Id("opts").Id(":=").Id(dbqOpts).Block(
 				jen.Id("SingleResult:").True().Id(","),
@@ -414,7 +412,7 @@ func generateGetCountRepo(name, path, services string) error {
 				jen.Id("DecoderConfig:").Id("dbq.StdTimeConversionConfig(),"),
 			),
 			jen.Line(),
-			jen.Id("result, err").Id(":=").Id("dbq.Q").Parens(jen.Id("ctx, db.mysql, stmt, opts, val...")),
+			jen.Id("result, err").Id(":=").Id("dbq.Q").Parens(jen.Id("ctx, db.sql.DB(), stmt, opts, val...")),
 			jen.If(jen.Id("err").Op("!=").Nil()).Block(
 				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
@@ -507,45 +505,39 @@ func generateCreateRepo(name, path, services string) error {
 					Id("tableName").Id("=").Id(modelsName+"{}").Dot(getTableName).Id("\n").
 					Id(name+"Mapper").Id("=").Id("mapper").Dot("New"+upperName+"Mapper(data, nil).MapDomainToModels()\n").
 					Id("arrColumn").Id("=").Id(name+"Mapper.GetColumns()\n").
-					Id("arrValue").Id("=").Id(name+"Mapper.GetValStruct(arrColumn)\n"),
+					Id("arrValue").Id("=").Id(name+"Mapper.GetValStruct(arrColumn)\n").
+					Id("sqlDB").Id("dbq.ExecContexter"),
+			),
+			jen.Line(),
+			jen.If(jen.Id("db.sql.Session().UseTx")).Block(
+				jen.Id("sqlDB").Op("=").Id("db.sql.Session().Tx"),
+			).Else().Block(
+				jen.Id("sqlDB").Op("=").Id("db.sql.DB()"),
 			),
 			jen.Line(),
 			jen.Id("ctx, cancel := context.WithTimeout(ctx, 60*time.Second)"),
 			jen.Defer().Id("cancel()"),
 			jen.Line(),
-			jen.Id("err = dbq.Tx").Params(jen.Id("ctx"), jen.Id("db.mysql"), jen.Func().Parens(jen.Id("tx interface{}, Q dbq.QFn, E dbq.EFn, txCommit dbq.TxCommit")).Block(
-				jen.Id("stmt := dbq.INSERTStmt(tableName, arrColumn, len(arrValue), dbq.MySQL)"),
-				jen.Id("_, err = E(ctx, stmt, nil, arrValue)"),
-				jen.If(jen.Id("err").Op("!=").Nil()).Block(
-					jen.Id(loggerErr).Parens(
-						jen.Id(loggerCtx).
-							Id(loggerCmdName).
-							Id(loggerErrExecQuery).
-							Id(logErr),
-					),
-					jen.Return(),
-				),
-				jen.Line(),
-				jen.Id("err = txCommit()"),
-				jen.If(jen.Id("err").Op("!=").Nil()).Block(
-					jen.Id(loggerErr).Parens(
-						jen.Id(loggerCtx).
-							Id(loggerCmdName).
-							Id("\n\"Failed commit query\",").
-							Id(logErr),
-					),
-					jen.Return(),
-				),
-				jen.Line(),
-				jen.Id(loggerInfo).Parens(
+			jen.Id("stmt := dbq.INSERTStmt(tableName, arrColumn, len(arrValue), dbq.MySQL)"),
+			jen.Id("_, err = dbq.E(ctx, sqlDB, stmt, nil, arrValue)"),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n"+fmt.Sprintf(`"Save %s success",`, title)).
-						Id("\n").Nil().Id(",\n"),
+						Id(loggerErrExecQuery).
+						Id(logErr),
 				),
-			)),
+				jen.Return(jen.Id("err")),
+			),
 			jen.Line(),
-			jen.Return(jen.Id("err")),
+			jen.Id(loggerInfo).Parens(
+				jen.Id(loggerCtx).
+					Id(loggerCmdName).
+					Id("\n"+fmt.Sprintf(`"Save %s success",`, title)).
+					Id("\n").Nil().Id(",\n"),
+			),
+			jen.Line(),
+			jen.Return().Nil(),
 		)
 
 	dir = path + "/save_" + dir + ".go"
@@ -611,59 +603,53 @@ func generateUpdateRepo(name, path, services string, fieldID string) error {
 					Id(modelsVar).Id("=").Id(name+"Mapper.GetModelsMap()\n").
 					Id("arrColumn").Id("=").Id(name+"Mapper.GetColumns()\n").
 					Id("values").Id("=").Make(jen.Id("[]interface{}"), jen.Lit(0)).Id("\n").
-					Id("lastIndex").Id("=").Id("len(arrColumn) - 1\n"),
+					Id("lastIndex").Id("=").Id("len(arrColumn) - 1\n").
+					Id("sqlDB").Id("dbq.ExecContexter"),
+			),
+			jen.Line(),
+			jen.If(jen.Id("db.sql.Session().UseTx")).Block(
+				jen.Id("sqlDB").Op("=").Id("db.sql.Session().Tx"),
+			).Else().Block(
+				jen.Id("sqlDB").Op("=").Id("db.sql.DB()"),
 			),
 			jen.Line(),
 			jen.Id("ctx, cancel := context.WithTimeout(ctx, 60*time.Second)"),
 			jen.Defer().Id("cancel()"),
 			jen.Line(),
-			jen.Id("err = dbq.Tx").Params(jen.Id("ctx"), jen.Id("db.mysql"), jen.Func().Parens(jen.Id("tx interface{}, Q dbq.QFn, E dbq.EFn, txCommit dbq.TxCommit")).Block(
-				jen.Id("stmt := fmt.Sprintf(`UPDATE %s SET`, tableName)"),
-				jen.For(jen.Id("key,val").Id(":=").Range().Id("arrColumn")).Block(
-					jen.If(jen.Id(modelsVar+"[val]").Op("!=").Nil()).Block(
-						jen.Id("stmt = fmt.Sprintf(`%s %s = ?`, stmt, val)"),
-						jen.Id("values =").Append(jen.Id("values"), jen.Id(modelsVar+"[val]")),
-					),
-					jen.Line(),
-					jen.If(jen.Id("key < lastIndex").Op("&&").Id(modelsVar+"[val]").Op("!=").Nil()).Block(
-						jen.Id("stmt += `, `"),
-					).Else().If(jen.Id("key == lastIndex")).Block(
-						jen.Id("stmt = fmt.Sprintf(`%s WHERE id = ?`, stmt)"),
-					),
-				),
-				jen.Id("values =").Append(jen.Id("values"), jen.Id("id")),
-				jen.Line(),
-				jen.Id("_, err = E(ctx, stmt, nil, values...)"),
-				jen.If(jen.Id("err").Op("!=").Nil()).Block(
-					jen.Id(loggerErr).Parens(
-						jen.Id(loggerCtx).
-							Id(loggerCmdName).
-							Id(loggerErrExecQuery).
-							Id(logErr),
-					),
-					jen.Return(),
+			jen.Id("stmt := fmt.Sprintf(`UPDATE %s SET`, tableName)"),
+			jen.For(jen.Id("key,val").Id(":=").Range().Id("arrColumn")).Block(
+				jen.If(jen.Id(modelsVar+"[val]").Op("!=").Nil()).Block(
+					jen.Id("stmt = fmt.Sprintf(`%s %s = ?`, stmt, val)"),
+					jen.Id("values =").Append(jen.Id("values"), jen.Id(modelsVar+"[val]")),
 				),
 				jen.Line(),
-				jen.Id("err = txCommit()"),
-				jen.If(jen.Id("err").Op("!=").Nil()).Block(
-					jen.Id(loggerErr).Parens(
-						jen.Id(loggerCtx).
-							Id(loggerCmdName).
-							Id("\n\"Failed commit query\",").
-							Id(logErr),
-					),
-					jen.Return(),
+				jen.If(jen.Id("key < lastIndex").Op("&&").Id(modelsVar+"[val]").Op("!=").Nil()).Block(
+					jen.Id("stmt += `, `"),
+				).Else().If(jen.Id("key == lastIndex")).Block(
+					jen.Id("stmt = fmt.Sprintf(`%s WHERE id = ?`, stmt)"),
 				),
-				jen.Line(),
-				jen.Id(loggerInfo).Parens(
+			),
+			jen.Id("values =").Append(jen.Id("values"), jen.Id("id")),
+			jen.Line(),
+			jen.Id("_, err = dbq.E(ctx, sqlDB, stmt, nil, values...)"),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n"+fmt.Sprintf(`"Update %s success",`, title)).
-						Id("\n").Nil().Id(",\n"),
+						Id(loggerErrExecQuery).
+						Id(logErr),
 				),
-			)),
+				jen.Return(jen.Id("err")),
+			),
 			jen.Line(),
-			jen.Return(jen.Id("err")),
+			jen.Id(loggerInfo).Parens(
+				jen.Id(loggerCtx).
+					Id(loggerCmdName).
+					Id("\n"+fmt.Sprintf(`"Update %s success",`, title)).
+					Id("\n").Nil().Id(",\n"),
+			),
+			jen.Line(),
+			jen.Return().Nil(),
 		)
 
 	dir = path + "/update_" + dir + ".go"
@@ -721,45 +707,39 @@ func generateDeleteRepo(name, path, services string, fieldID string) error {
 			jen.Line(),
 			jen.Var().Parens(
 				jen.Id("\nerr").Error().Id("\n").
-					Id("tableName").Id("=").Id(modelsName+"{}").Dot(getTableName).Id("\n"),
+					Id("tableName").Id("=").Id(modelsName+"{}").Dot(getTableName).Id("\n").
+					Id("sqlDB").Id("dbq.ExecContexter"),
+			),
+			jen.Line(),
+			jen.If(jen.Id("db.sql.Session().UseTx")).Block(
+				jen.Id("sqlDB").Op("=").Id("db.sql.Session().Tx"),
+			).Else().Block(
+				jen.Id("sqlDB").Op("=").Id("db.sql.DB()"),
 			),
 			jen.Line(),
 			jen.Id("ctx, cancel := context.WithTimeout(ctx, 60*time.Second)"),
 			jen.Defer().Id("cancel()"),
 			jen.Line(),
-			jen.Id("err = dbq.Tx").Params(jen.Id("ctx"), jen.Id("db.mysql"), jen.Func().Parens(jen.Id("tx interface{}, Q dbq.QFn, E dbq.EFn, txCommit dbq.TxCommit")).Block(
-				jen.Id("stmt := fmt.Sprintf(`UPDATE %s SET deleted_at = ? WHERE id = ?`, tableName)"),
-				jen.Id("_, err = E(ctx, stmt, nil, converter.ConvertDateToString(time.Now()), id)"),
-				jen.If(jen.Id("err").Op("!=").Nil()).Block(
-					jen.Id(loggerErr).Parens(
-						jen.Id(loggerCtx).
-							Id(loggerCmdName).
-							Id(loggerErrExecQuery).
-							Id(logErr),
-					),
-					jen.Return(),
-				),
-				jen.Line(),
-				jen.Id("err = txCommit()"),
-				jen.If(jen.Id("err").Op("!=").Nil()).Block(
-					jen.Id(loggerErr).Parens(
-						jen.Id(loggerCtx).
-							Id(loggerCmdName).
-							Id("\n\"Failed commit query\",").
-							Id(logErr),
-					),
-					jen.Return(),
-				),
-				jen.Line(),
-				jen.Id(loggerInfo).Parens(
+			jen.Id("stmt := fmt.Sprintf(`UPDATE %s SET deleted_at = ? WHERE id = ?`, tableName)"),
+			jen.Id("_, err = dbq.E(ctx, sqlDB, stmt, nil, converter.ConvertDateToString(time.Now()), id)"),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Id(loggerErr).Parens(
 					jen.Id(loggerCtx).
 						Id(loggerCmdName).
-						Id("\n"+fmt.Sprintf(`"Delete %s success",`, title)).
-						Id("\n").Nil().Id(",\n"),
+						Id(loggerErrExecQuery).
+						Id(logErr),
 				),
-			)),
+				jen.Return(jen.Id("err")),
+			),
 			jen.Line(),
-			jen.Return(jen.Id("err")),
+			jen.Id(loggerInfo).Parens(
+				jen.Id(loggerCtx).
+					Id(loggerCmdName).
+					Id("\n"+fmt.Sprintf(`"Delete %s success",`, title)).
+					Id("\n").Nil().Id(",\n"),
+			),
+			jen.Line(),
+			jen.Return().Nil(),
 		)
 
 	dir = path + "/delete_" + dir + ".go"

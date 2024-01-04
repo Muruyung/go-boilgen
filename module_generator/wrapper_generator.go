@@ -22,6 +22,14 @@ func generateWrapper(interfaceShort, interfaceName, path string) error {
 		pkgName = "service"
 	}
 
+	if strings.Contains(interfaceName, "SqlTx") {
+		interfaceName = "SqlTx"
+	}
+
+	if strings.Contains(interfaceName, "SvcTx") {
+		interfaceName = "SvcTx"
+	}
+
 	if strings.Contains(interfaceName, "UseCase") {
 		if strings.Contains(path, "/query/") {
 			pkgName = "query"

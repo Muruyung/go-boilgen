@@ -22,15 +22,6 @@ func mapperGenerator(dto dtoModule, domainPath string, isAll, isOnly bool) error
 		}
 	}
 
-	if _, err = os.Stat(domainPath + "common.go"); os.IsNotExist(err) {
-		dto2 := dto
-		dto2.path = domainPath
-		err = generateCommonDomainRepo(dto2)
-		if err != nil {
-			return err
-		}
-	}
-
 	dto.path += "repository" + dto.sep + "mapper" + dto.sep
 	if _, err = os.Stat(dto.path); os.IsNotExist(err) {
 		err = os.MkdirAll(dto.path, 0777)

@@ -8,11 +8,7 @@ import (
 	"github.com/dave/jennifer/jen"
 )
 
-func entityGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
-		return nil
-	}
-
+func entityGenerator(dto dtoModule) error {
 	dto.path += "entity" + dto.sep
 	var err error
 

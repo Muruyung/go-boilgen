@@ -98,17 +98,21 @@ func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
 
 func generateInitUc(name, path, services string, fields map[string]string) error {
 	var (
-		file       = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
-		upperName  = capitalize(name)
-		title      = sentences(name)
-		dir        = "init"
-		initReturn = "usecase"
-		cqrsImport string
+		file        = jen.NewFilePathName(path, strings.ToLower(name)+"_usecase")
+		upperName   = capitalize(name)
+		title       = sentences(name)
+		dir         = "init"
+		initReturn  = "usecase"
+		cqrsImport  string
+		structField = jen.Id("tx").Id("service.SvcTx")
+		returnUC    = jen.Id("tx").Op(":").Id("svc.SvcTx,")
 	)
 
 	if strings.Contains(path, "/query/") {
 		initReturn = "query"
 		cqrsImport = "/query"
+		structField = jen.Id("svc").Id("*service.Wrapper")
+		returnUC = jen.Id("svc").Op(":").Id("svc,")
 	} else if strings.Contains(path, "/command/") {
 		initReturn = "command"
 		cqrsImport = "/command"
@@ -126,7 +130,7 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 		ucName = fmt.Sprintf("%sUseCase", upperName)
 	)
 	file.Type().Id(name + "Interactor").Struct(
-		jen.Id("*service.Wrapper"),
+		structField,
 	)
 
 	initName := fmt.Sprintf("New%sUseCase", upperName)
@@ -134,10 +138,7 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 	file.Func().Id(initName).Params(jen.Id("svc").Id("*service.Wrapper")).Id(initReturn).Dot(ucName).
 		Block(
 			jen.Return(
-				jen.Id("&" + interactorName).
-					Block(
-						jen.Id("Wrapper").Op(":").Id("svc,"),
-					),
+				jen.Id("&" + interactorName).Block(returnUC),
 			),
 		)
 

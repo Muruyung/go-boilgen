@@ -11,18 +11,33 @@ import (
 )
 
 func domainRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
-		return nil
-	}
-
-	dto.path += "repository" + dto.sep
 	var err error
+	dto.path += "repository" + dto.sep
 
 	if _, err = os.Stat(dto.path); os.IsNotExist(err) {
 		err = os.MkdirAll(dto.path, 0777)
 		if err != nil {
 			return err
 		}
+	}
+
+	if _, err = os.Stat(dto.path + "common.go"); os.IsNotExist(err) {
+		err = generateCommonDomainRepo(dto)
+		if err != nil {
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return err
+		}
+
+		err = appendWrapper("", "SqlTxRepository", dto.path)
+		if err != nil {
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return err
+		}
+		logger.Logger.Info("domain common repository created")
+	}
+
+	if !isAll && !isOnly {
+		return nil
 	}
 
 	if _, err = os.Stat(dto.path + dto.name + ".go"); os.IsNotExist(err) {
@@ -58,9 +73,18 @@ func generateCommonDomainRepo(dto dtoModule) error {
 		dir              = "common"
 		mapperCommonName = "MapperCommon"
 		modelsCommonName = "ModelsCommon"
+		sqlTxCommonName  = "SqlTx"
 	)
 	dto.name = sentences(dto.name)
 	dto.methodName = capitalize(dto.methodName)
+
+	file.Add(jen.Id("import").Parens(
+		jen.Id("\n").
+			Id(`"context"`).Id("\n").
+			Id(`"database/sql"`).Id("\n").
+			Line().
+			Id(fmt.Sprintf(`"%s/pkg/database"`, projectName)).Id("\n"),
+	))
 
 	file.Commentf("%s template for common mapper models", mapperCommonName)
 	file.Type().Id(mapperCommonName).Interface(
@@ -75,6 +99,14 @@ func generateCommonDomainRepo(dto dtoModule) error {
 		jen.Id("GetModelsMap()").Id("map[string]interface{}"),
 		jen.Id("GetColumns()").Id("[]string"),
 		jen.Id("GetValStruct").Parens(jen.Id("arrColumn").Id("[]string")).Id("[]interface{}"),
+	)
+
+	file.Commentf("%s template for common transaction repository", sqlTxCommonName)
+	file.Type().Id(sqlTxCommonName).Interface(
+		jen.Id("BeginTx(ctx context.Context, operation func(ctx context.Context, repo *Wrapper) error)").Error(),
+		jen.Id("Session()").Id("*database.TX"),
+		jen.Id("Wrapper()").Id("*Wrapper"),
+		jen.Id("DB()").Id("*sql.DB"),
 	)
 
 	return file.Save(dto.path + "/" + dir + ".go")

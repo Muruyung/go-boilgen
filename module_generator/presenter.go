@@ -25,6 +25,7 @@ var (
 	projectName        string
 	defaultErr         = "Error: %v"
 	loggerInfo         = "logger.DetailLoggerInfo"
+	loggerWarn         = "logger.DetailLoggerWarn"
 	loggerErr          = "logger.DetailLoggerError"
 	logErr             = "\nerr,\n"
 	loggerCtx          = "\nctx,"

@@ -108,6 +108,18 @@ func modGen() {
 		return
 	}
 
+	err = sqlTxGenerator(dto)
+	if err != nil {
+		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+		return
+	}
+
+	err = svcTxGenerator(dto)
+	if err != nil {
+		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+		return
+	}
+
 	if !isEmptyFields {
 		err = modelsGenerator(dto, isAll, isModelsOnly || isRepoOnly)
 		if err != nil {
@@ -126,7 +138,7 @@ func modGen() {
 	//================domain generator================
 	dto.path = domainPath
 	if isUseEntity {
-		err = entityGenerator(dto, isAll, isEntityOnly)
+		err = entityGenerator(dto)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return

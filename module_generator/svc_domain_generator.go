@@ -11,10 +11,6 @@ import (
 )
 
 func domainSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
-		return nil
-	}
-
 	dto.path += "service" + dto.sep
 	var err error
 
@@ -23,6 +19,25 @@ func domainSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	if _, err = os.Stat(dto.path + "common.go"); os.IsNotExist(err) {
+		err = generateCommonDomainSvc(dto)
+		if err != nil {
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return err
+		}
+
+		err = appendWrapper("", "SvcTxService", dto.path)
+		if err != nil {
+			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
+			return err
+		}
+		logger.Logger.Info("domain common service created")
+	}
+
+	if !isAll && !isOnly {
+		return nil
 	}
 
 	if _, err = os.Stat(dto.path + dto.name + ".go"); os.IsNotExist(err) {
@@ -50,6 +65,25 @@ func domainSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 	}
 
 	return nil
+}
+
+func generateCommonDomainSvc(dto dtoModule) error {
+	var (
+		file            = jen.NewFilePathName(dto.path, "service")
+		dir             = "common"
+		svcTxCommonName = "SvcTx"
+	)
+	dto.name = sentences(dto.name)
+	dto.methodName = capitalize(dto.methodName)
+
+	file.Add(jen.Id("import").Lit("context"))
+
+	file.Commentf("%s template for common transaction pattern", svcTxCommonName)
+	file.Type().Id(svcTxCommonName).Interface(
+		jen.Id("BeginTx(ctx context.Context, operation func(ctx context.Context, svc *Wrapper) error)").Error(),
+	)
+
+	return file.Save(dto.path + "/" + dir + ".go")
 }
 
 func generateDomainSvc(dto dtoModule) error {
