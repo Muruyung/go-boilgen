@@ -103,19 +103,19 @@ func generateInitUc(name, path, services string, fields map[string]string) error
 		title       = sentences(name)
 		dir         = "init"
 		initReturn  = "usecase"
+		structField = jen.Id("svc").Id("*service.Wrapper")
+		returnUC    = jen.Id("svc").Op(":").Id("svc,")
 		cqrsImport  string
-		structField = jen.Id("tx").Id("service.SvcTx")
-		returnUC    = jen.Id("tx").Op(":").Id("svc.SvcTx,")
 	)
 
 	if strings.Contains(path, "/query/") {
 		initReturn = "query"
 		cqrsImport = "/query"
-		structField = jen.Id("svc").Id("*service.Wrapper")
-		returnUC = jen.Id("svc").Op(":").Id("svc,")
 	} else if strings.Contains(path, "/command/") {
 		initReturn = "command"
 		cqrsImport = "/command"
+		structField = jen.Id("tx").Id("service.SvcTx")
+		returnUC = jen.Id("tx").Op(":").Id("svc.SvcTx,")
 	}
 
 	name = lowerize(name)
@@ -164,9 +164,9 @@ func generateGetUc(name, path, services, idFieldType string) error {
 	)
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(`"context"`).Id("\n").
-			Id(`"fmt"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
+		jen.Id("\n").
+			Id(`"context"`).Id("\n").
+			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
 
@@ -175,32 +175,7 @@ func generateGetUc(name, path, services, idFieldType string) error {
 		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(idFieldType)).
 		Parens(jen.List(jen.Id(entityName), jen.Error())).
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Get %s process...",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Line(),
-			jen.Id("res, err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, id)"),
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error get by id=%v", id),`).
-						Id(logErr),
-				),
-				jen.Return(jen.Nil(), jen.Id("err")),
-			),
-			jen.Line(),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Get %s success",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Return(jen.Id("res"), jen.Nil()),
+			jen.Return(jen.Id("uc.svc").Dot(svcName).Dot(methodName).Params(jen.Id("ctx"), jen.Id("id"))),
 		)
 
 	dir = path + "/get_" + dir + ".go"
@@ -232,8 +207,9 @@ func generateGetListUc(name, path, services string) error {
 	)
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(`"context"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
+		jen.Id("\n").
+			Id(`"context"`).Id("\n").
+			Line().
 			Id(fmt.Sprintf(`"%s/pkg/utils"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/entity"`, projectName, services)).Id("\n"),
 	))
@@ -243,32 +219,7 @@ func generateGetListUc(name, path, services string) error {
 		Params(jen.Id("ctx").Id(ctx), jen.Id("request").Id("*utils.RequestOption")).
 		Parens(jen.List(jen.Id(entityName), jen.Id("*utils.MetaResponse"), jen.Error())).
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Get list %s process...",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Line(),
-			jen.Id("res, metaRes, err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, request)"),
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(`"Error get list",`).
-						Id(logErr),
-				),
-				jen.Return(jen.Nil(), jen.Nil(), jen.Id("err")),
-			),
-			jen.Line(),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Get list %s success",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Return(jen.Id("res"), jen.Id("metaRes"), jen.Nil()),
+			jen.Return(jen.Id("uc.svc").Dot(svcName).Dot(methodName).Params(jen.Id("ctx"), jen.Id("request"))),
 		)
 
 	dir = path + "/get_list_" + dir + ".go"
@@ -294,15 +245,14 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 		err             error
 		dtoPath         = "usecase"
 		cqrsImport      string
+		returnTx        = "uc.svc.SvcTx.BeginTx"
 	)
 	name = lowerize(name)
 
-	if strings.Contains(path, "/query/") {
-		dtoPath = "query"
-		cqrsImport = "/query"
-	} else if strings.Contains(path, "/command/") {
+	if strings.Contains(path, "/command/") {
 		dtoPath = "command"
 		cqrsImport = "/command"
+		returnTx = "uc.tx.BeginTx"
 	}
 
 	var (
@@ -321,8 +271,9 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 	}
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(`"context"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
+		jen.Id("\n").
+			Id(`"context"`).Id("\n").
+			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
@@ -331,34 +282,13 @@ func generateCreateUc(name, path, services string, fields map[string]string) err
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
 		Params(jen.Id("ctx").Id(ctx), jen.Id("dto").Id(dtoPath).Dot(dto)).Error().
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Create %s process...",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Line(),
-			jen.Id("err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Parens(jen.Id("ctx, service."+dto).Block(
-				generatedParser...,
-			)),
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(`"Error create",`).
-						Id(logErr),
-				),
-				jen.Return(jen.Id("err")),
-			),
-			jen.Line(),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Create %s success",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Return(jen.Nil()),
+			jen.Return(jen.Id(returnTx).Params(jen.Id("ctx"), jen.Func().Params(
+				jen.Id("ctx").Id("context.Context"), jen.Id("svc").Id("*service.Wrapper"),
+			).Error().Block(
+				jen.Return().Id("svc").Dot(svcName).Dot(methodName).Parens(jen.Id("ctx, service."+dto).Block(
+					generatedParser...,
+				)),
+			))),
 		)
 
 	dir = path + "/create_" + dir + ".go"
@@ -384,15 +314,14 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 		dtoPath         = "usecase"
 		err             error
 		cqrsImport      string
+		returnTx        = "uc.svc.SvcTx.BeginTx"
 	)
 	name = lowerize(name)
 
-	if strings.Contains(path, "/query/") {
-		dtoPath = "query"
-		cqrsImport = "/query"
-	} else if strings.Contains(path, "/command/") {
+	if strings.Contains(path, "/command/") {
 		dtoPath = "command"
 		cqrsImport = "/command"
+		returnTx = "uc.tx.BeginTx"
 	}
 
 	var (
@@ -411,9 +340,9 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 	}
 
 	file.Add(jen.Id("import").Parens(
-		jen.Id(`"context"`).Id("\n").
-			Id(`"fmt"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
+		jen.Id("\n").
+			Id(`"context"`).Id("\n").
+			Line().
 			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/usecase%s"`, projectName, services, cqrsImport)).Id("\n"),
 	))
@@ -422,34 +351,13 @@ func generateUpdateUc(name, path, services string, fields map[string]string) err
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
 		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"]), jen.Id("dto").Id(dtoPath).Dot(dto)).Error().
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Update %s process...",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Line(),
-			jen.Id("err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, id, service."+dto).Block(
-				generatedParser...,
-			).Id(")"),
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error update by id=%v", id),`).
-						Id(logErr),
-				),
-				jen.Return(jen.Id("err")),
-			),
-			jen.Line(),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Update %s success",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Return(jen.Nil()),
+			jen.Return(jen.Id(returnTx).Params(jen.Id("ctx"), jen.Func().Params(
+				jen.Id("ctx").Id("context.Context"), jen.Id("svc").Id("*service.Wrapper"),
+			).Error().Block(
+				jen.Return().Id("svc").Dot(svcName).Dot(methodName).Parens(jen.Id("ctx, id, service."+dto).Block(
+					generatedParser...,
+				)),
+			))),
 		)
 
 	dir = path + "/update_" + dir + ".go"
@@ -477,44 +385,28 @@ func generateDeleteUc(name, path, services string, fields map[string]string) err
 	var (
 		interactorName = fmt.Sprintf("%sInteractor", name)
 		embedStruct    = fmt.Sprintf("*%s", interactorName)
+		returnTx       = "uc.svc.SvcTx.BeginTx"
 	)
 
+	if strings.Contains(path, "/command/") {
+		returnTx = "uc.tx.BeginTx"
+	}
+
 	file.Add(jen.Id("import").Parens(
-		jen.Id(`"context"`).Id("\n").
-			Id(`"fmt"`).Id("\n").
-			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n"),
+		jen.Id("\n").Id(`"context"`).Id("\n").
+			Line().
+			Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, services)).Id("\n"),
 	))
 
 	file.Commentf("%s update %s", methodName, title)
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
 		Params(jen.Id("ctx").Id(ctx), jen.Id("id").Id(fields["id"])).Error().
 		Block(
-			jen.Const().Id("commandName").Op("=").Lit("UC-"+strcase.ToScreamingKebab(methodName)),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Delete %s process...",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Line(),
-			jen.Id("err").Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx, id)"),
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(`fmt.Sprintf("Error delete by id=%v", id),`).
-						Id(logErr),
-				),
-				jen.Return(jen.Id("err")),
-			),
-			jen.Line(),
-			jen.Id(loggerInfo).Parens(
-				jen.Id(loggerCtx).
-					Id(loggerCmdName).
-					Id("\n"+fmt.Sprintf(`"Delete %s success",`, title)).
-					Id("\n").Nil().Id(",\n"),
-			),
-			jen.Return(jen.Nil()),
+			jen.Return(jen.Id(returnTx).Params(jen.Id("ctx"), jen.Func().Params(
+				jen.Id("ctx").Id("context.Context"), jen.Id("svc").Id("*service.Wrapper"),
+			).Error().Block(
+				jen.Return().Id("svc").Dot(svcName).Dot(methodName).Id("(ctx, id)"),
+			))),
 		)
 
 	dir = path + "/delete_" + dir + ".go"
@@ -539,10 +431,24 @@ func generateCustomUc(dto dtoModule) error {
 		generatedCustomParams = parseCustomJenCodeFields(dto.params, dto.arrParams, isExists, false)
 		generatedCustomReturn = parseCustomJenCodeFields(dto.returns, dto.arrReturn, isExists, true)
 		paramsVar             = strings.Join(dto.arrParams[:], ",")
-		returnVar             = strings.Join(dto.arrReturn[:], ",")
 		err                   error
 		params                = []jen.Code{jen.Id("ctx").Id(ctx)}
+		returnUC              = jen.Id("uc.svc").Dot(svcName).Dot(methodName).Id("(ctx," + paramsVar + ")")
+		importList            = jen.Id("\n").Id(`"context"`).Id("\n")
 	)
+
+	if strings.Contains(dto.path, "/command/") {
+		generatedCustomReturn = []jen.Code{
+			jen.Error(),
+		}
+		importList = importList.Id(fmt.Sprintf(`"%s/services/%s/domain/service"`, projectName, dto.services)).Id("\n")
+		returnUC = jen.Id("uc.tx.BeginTx").Params(jen.Id("ctx"), jen.Func().Params(
+			jen.Id("ctx").Id("context.Context"), jen.Id("svc").Id("*service.Wrapper"),
+		).Error().Block(
+			jen.Return().Id("svc").Dot(svcName).Dot(methodName).Id("(ctx,"+paramsVar+")"),
+		))
+	}
+
 	params = append(params, generatedCustomParams...)
 	dto.name = lowerize(dto.name)
 
@@ -550,8 +456,6 @@ func generateCustomUc(dto dtoModule) error {
 		interactorName = fmt.Sprintf("%sInteractor", dto.name)
 		embedStruct    = fmt.Sprintf("*%s", interactorName)
 	)
-
-	importList := jen.Id("\n").Id(`"context"`).Id("\n")
 
 	if isExists.isTimeExists {
 		importList = importList.Id(`"time"`)
@@ -566,51 +470,16 @@ func generateCustomUc(dto dtoModule) error {
 	}
 
 	file.Add(jen.Id("import").Parens(
-		importList.Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n"),
+		importList,
 	))
-
-	blockCode := []jen.Code{
-		jen.Const().Id("commandName").Op("=").Lit("UC-" + strcase.ToScreamingKebab(methodName)),
-		jen.Id(loggerInfo).Parens(
-			jen.Id(loggerCtx).
-				Id(loggerCmdName).
-				Id("\n" + fmt.Sprintf(`"%s process...",`, title)).
-				Id("\n").Nil().Id(",\n"),
-		),
-		jen.Line(),
-		jen.Id(returnVar).Id(":=").Id("uc").Dot(svcName).Dot(methodName).Id("(ctx," + paramsVar + ")"),
-	}
-
-	if isExists.isError {
-		blockCode = append(blockCode,
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Id(loggerErr).Parens(
-					jen.Id(loggerCtx).
-						Id(loggerCmdName).
-						Id("\n").Id(fmt.Sprintf(`"Error %s",`, title)).
-						Id(logErr),
-				),
-				jen.Return().Id(returnVar),
-			),
-		)
-	}
-
-	blockCode = append(blockCode,
-		jen.Line(),
-		jen.Id(loggerInfo).Parens(
-			jen.Id(loggerCtx).
-				Id(loggerCmdName).
-				Id("\n"+fmt.Sprintf(`"%s success",`, title)).
-				Id("\n").Nil().Id(",\n"),
-		),
-		jen.Return().Id(returnVar),
-	)
 
 	file.Commentf("%s %s use case", methodName, title)
 	file.Func().Params(jen.Id("uc").Id(embedStruct)).Id(methodName).
 		Params(params...).
 		Parens(jen.List(generatedCustomReturn...)).
-		Block(blockCode...)
+		Block(
+			jen.Return(returnUC),
+		)
 
 	dir = fmt.Sprintf("%s/%s.go", dto.path, dir)
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
