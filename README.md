@@ -1,9 +1,3 @@
----
-runme:
-  id: 01HK4A6PCACAJVWTMCQVDYR5FX
-  version: v2.0
----
-
 # Go Boilerplate Generator
 
 Go Boilerplate Generator is used to generate core modules of boilerplate such as usecase, service, repository, models, and entity.
