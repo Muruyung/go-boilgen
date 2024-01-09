@@ -11,8 +11,8 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-func internalRepoGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func internalRepoGenerator(dto dtoModule, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 

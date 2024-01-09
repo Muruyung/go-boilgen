@@ -10,8 +10,8 @@ import (
 	"github.com/dave/jennifer/jen"
 )
 
-func domainUcGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func domainUcGenerator(dto dtoModule, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 

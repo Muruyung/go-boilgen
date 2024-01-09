@@ -11,8 +11,8 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-func internalUcGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func internalUcGenerator(dto dtoModule, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 

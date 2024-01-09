@@ -2,23 +2,23 @@ package modulegenerator
 
 // flag field
 var (
-	svcName         string
-	name            string
-	varField        string
-	varMethod       string
-	methodName      string
-	varParam        string
-	varReturn       string
-	isModelsOnly    bool
-	isEntityOnly    bool
-	isRepoOnly      bool
-	isServiceOnly   bool
-	isUseCaseOnly   bool
-	isWithoutUT     bool
-	isWithoutEntity bool
-	isCqrs          bool
-	isCqrsQuery     bool
-	isCqrsCommand   bool
+	svcName           string
+	name              string
+	varField          string
+	varMethod         string
+	methodName        string
+	varParam          string
+	varReturn         string
+	isGenerateModels  bool
+	isGenerateEntity  bool
+	isGenerateRepo    bool
+	isGenerateService bool
+	isGenerateUseCase bool
+	isWithoutUT       bool
+	isWithoutEntity   bool
+	isCqrs            bool
+	isCqrsQuery       bool
+	isCqrsCommand     bool
 )
 
 var (
@@ -50,7 +50,7 @@ type dtoModule struct {
 	arrParams  []string
 	returns    map[string]string
 	arrReturn  []string
-	entityOnly bool
+	isEntity   bool
 }
 
 type isExists struct {

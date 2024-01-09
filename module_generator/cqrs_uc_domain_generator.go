@@ -10,8 +10,8 @@ import (
 	"github.com/dave/jennifer/jen"
 )
 
-func domainCqrsUcGenerator(dto dtoModule, cqrsType string, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func domainCqrsUcGenerator(dto dtoModule, cqrsType string, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 

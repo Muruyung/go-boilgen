@@ -11,8 +11,8 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-func internalSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func internalSvcGenerator(dto dtoModule, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 

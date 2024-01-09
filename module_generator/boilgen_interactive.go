@@ -1,13 +1,13 @@
 package modulegenerator
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/Muruyung/go-utilities/logger"
+	"github.com/carmark/pseudo-terminal-go/terminal"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
 )
@@ -28,13 +28,12 @@ func init() {
 
 func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 	var (
-		reader           = bufio.NewReader(os.Stdin)
 		availableService = true
 		dirName          []string
 		err              error
 		text             string
-		char             rune
 		index            int
+		cli, _           = terminal.NewWithStdInOut()
 	)
 	isWithoutUT = true
 	methodName = "example"
@@ -56,7 +55,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 		}
 		fmt.Printf("%d. Create new services\n", len(dirName)+1)
 		fmt.Print("Choose services (input number): ")
-		text, _ = reader.ReadString('\n')
+		text, _ = cli.ReadLine()
 		text = strings.Replace(text, "\n", "", -1)
 		index, err = strconv.Atoi(text)
 		if err != nil {
@@ -77,7 +76,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 
 	if !availableService || index == len(dirName)+1 {
 		fmt.Print("Input services name: ")
-		text, _ = reader.ReadString('\n')
+		text, _ = cli.ReadLine()
 		text = strings.Replace(text, "\n", "", -1)
 		if text == "" {
 			logger.Logger.Error("invalid input value, cannot be empty")
@@ -88,7 +87,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Print("Input modules name: ")
-	text, _ = reader.ReadString('\n')
+	text, _ = cli.ReadLine()
 	text = strings.Replace(text, "\n", "", -1)
 	if text == "" {
 		logger.Logger.Error("invalid input value, cannot be empty")
@@ -100,43 +99,38 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 	fmt.Println("Input fields struct (optional, empty this line if you won't generate struct)")
 	fmt.Println(`Example: id:string,age:int,startDate:time.Time`)
 	fmt.Print("-> ")
-	text, _ = reader.ReadString('\n')
+	text, _ = cli.ReadLine()
 	text = strings.Replace(text, "\n", "", -1)
 	varField = text
 	if varField != "" {
 		fmt.Print("Generate entity?(y/n)")
-		char, _, _ = reader.ReadRune()
-		if char != 10 {
-			_, _ = reader.ReadString('\n')
-		}
-		isWithoutEntity = !yesOrNo(char)
+		text, _ = cli.ReadLine()
+		isWithoutEntity = !yesOrNo(text)
 		fmt.Println(!isWithoutEntity)
 
-		if !isWithoutEntity {
-			fmt.Print("Generate entity only?(y/n)")
-			char, _, _ = reader.ReadRune()
-			if char != 10 {
-				_, _ = reader.ReadString('\n')
-			}
-			isEntityOnly = yesOrNo(char)
-			fmt.Println(isEntityOnly)
-			if isEntityOnly {
-				modGen()
-				return
-			}
-		} else {
-			fmt.Print("Generate models and mapper only?(y/n)")
-			char, _, _ = reader.ReadRune()
-			if char != 10 {
-				_, _ = reader.ReadString('\n')
-			}
-			isModelsOnly = yesOrNo(char)
-			fmt.Println(isModelsOnly)
-			if isModelsOnly {
-				modGen()
-				return
-			}
-		}
+		fmt.Print("Generate models and mapper?(y/n)")
+		text, _ = cli.ReadLine()
+		isGenerateModels = yesOrNo(text)
+		fmt.Println(isGenerateModels)
+		// if !isWithoutEntity {
+		// 	fmt.Print("Generate entity?(y/n)")
+		// text 		_, _ = cli.ReadLine()
+		// 	isGenerateEntity = yesOrNo(text)
+		// 	fmt.Println(isGenerateEntity)
+		// 	if isGenerateEntity {
+		// 		modGen()
+		// 		return
+		// 	}
+		// } else {
+		// 	fmt.Print("Generate models and mapper?(y/n)")
+		// text 		_, _ = cli.ReadLine()
+		// 	isGenerateModels = yesOrNo(text)
+		// 	fmt.Println(isGenerateModels)
+		// 	if isGenerateModels {
+		// 		modGen()
+		// 		return
+		// 	}
+		// }
 	}
 	fmt.Println()
 
@@ -148,7 +142,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 	fmt.Println("Choose methods (optional, empty this line if you want to custom your method)")
 	fmt.Println(`Example: 1,3,4`)
 	fmt.Print("-> ")
-	text, _ = reader.ReadString('\n')
+	text, _ = cli.ReadLine()
 	text = strings.Replace(text, "\n", "", -1)
 	varMethod = "custom"
 	if text != "" {
@@ -165,7 +159,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 
 	if varMethod == "custom" {
 		fmt.Print("Input custom method name: ")
-		text, _ = reader.ReadString('\n')
+		text, _ = cli.ReadLine()
 		text = strings.Replace(text, "\n", "", -1)
 		if text == "" {
 			logger.Logger.Error("invalid input value, cannot be empty")
@@ -177,7 +171,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 		fmt.Println("Input parameter (optional, empty this line will only generate context parameter)")
 		fmt.Println(`Example: id:string,age:int,startDate:time.Time`)
 		fmt.Print("-> ")
-		text, _ = reader.ReadString('\n')
+		text, _ = cli.ReadLine()
 		text = strings.Replace(text, "\n", "", -1)
 		varParam = text
 		fmt.Println()
@@ -185,7 +179,7 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 		fmt.Println("Input return (optional, empty this line will only generate error return)")
 		fmt.Println(`Example: id:string,age:int,startDate:time.Time`)
 		fmt.Print("-> ")
-		text, _ = reader.ReadString('\n')
+		text, _ = cli.ReadLine()
 		text = strings.Replace(text, "\n", "", -1)
 		if text != "" {
 			varReturn = text
@@ -193,52 +187,29 @@ func execexecBoilgenInteractive(cmd *cobra.Command, args []string) {
 		fmt.Println()
 	}
 
-	fmt.Print("Generate repository only?(y/n)")
-	char, _, _ = reader.ReadRune()
-	if char != 10 {
-		_, _ = reader.ReadString('\n')
-	}
-	isRepoOnly = yesOrNo(char)
-	fmt.Println(isRepoOnly)
-	if isRepoOnly {
-		modGen()
-		return
-	}
+	fmt.Print("Generate repository?(y/n)")
+	text, _ = cli.ReadLine()
+	isGenerateRepo = yesOrNo(text)
+	fmt.Println(isGenerateRepo)
 
-	fmt.Print("Generate service only?(y/n)")
-	char, _, _ = reader.ReadRune()
-	if char != 10 {
-		_, _ = reader.ReadString('\n')
-	}
-	isServiceOnly = yesOrNo(char)
-	fmt.Println(isServiceOnly)
-	if isServiceOnly {
-		modGen()
-		return
-	}
+	fmt.Print("Generate service?(y/n)")
+	text, _ = cli.ReadLine()
+	isGenerateService = yesOrNo(text)
+	fmt.Println(isGenerateService)
 
-	fmt.Print("Generate usecase only?(y/n)")
-	char, _, _ = reader.ReadRune()
-	if char != 10 {
-		_, _ = reader.ReadString('\n')
-	}
-	isUseCaseOnly = yesOrNo(char)
-	fmt.Println(isUseCaseOnly)
+	fmt.Print("Generate usecase?(y/n)")
+	text, _ = cli.ReadLine()
+	isGenerateUseCase = yesOrNo(text)
+	fmt.Println(isGenerateUseCase)
 
 	fmt.Print("Using CQRS pattern?(y/n)")
-	char, _, _ = reader.ReadRune()
-	if char != 10 {
-		_, _ = reader.ReadString('\n')
-	}
-	isCqrs = yesOrNo(char)
+	text, _ = cli.ReadLine()
+	isCqrs = yesOrNo(text)
 	fmt.Println(isCqrs)
 
 	fmt.Print("Generate mocks?(y/n)")
-	char, _, _ = reader.ReadRune()
-	if char != 10 {
-		_, _ = reader.ReadString('\n')
-	}
-	isWithoutUT = !yesOrNo(char)
+	text, _ = cli.ReadLine()
+	isWithoutUT = !yesOrNo(text)
 	fmt.Println(!isWithoutUT)
 
 	modGen()

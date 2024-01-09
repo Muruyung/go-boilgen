@@ -6,8 +6,8 @@ import (
 	"github.com/Muruyung/go-utilities/logger"
 )
 
-func internalCqrsUcGenerator(dto dtoModule, cqrsType string, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func internalCqrsUcGenerator(dto dtoModule, cqrsType string, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 

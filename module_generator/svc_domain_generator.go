@@ -10,7 +10,7 @@ import (
 	"github.com/dave/jennifer/jen"
 )
 
-func domainSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
+func domainSvcGenerator(dto dtoModule, isGenerate bool) error {
 	dto.path += "service" + dto.sep
 	var err error
 
@@ -36,7 +36,7 @@ func domainSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 		logger.Logger.Info("domain common service created")
 	}
 
-	if !isAll && !isOnly {
+	if !isGenerate {
 		return nil
 	}
 

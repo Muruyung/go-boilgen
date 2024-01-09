@@ -18,7 +18,6 @@ func modGen() {
 		isUseReturn        = varReturn != ""
 		isEmptyFields      = varField == ""
 		isUseEntity        = !isEmptyFields && !isWithoutEntity
-		isAll              = !isRepoOnly && !isServiceOnly && !isUseCaseOnly && !isModelsOnly && !isEntityOnly
 		separator          = string(os.PathSeparator)
 		cqrsType           string
 	)
@@ -74,7 +73,7 @@ func modGen() {
 			arrParams:  arrParams,
 			returns:    returns,
 			arrReturn:  arrReturn,
-			entityOnly: isEntityOnly,
+			isEntity:   isGenerateEntity,
 		}
 	)
 
@@ -87,9 +86,9 @@ func modGen() {
 	dto.path = internalPath
 
 	if isCqrs {
-		err = internalCqrsUcGenerator(dto, cqrsType, isAll, isUseCaseOnly)
+		err = internalCqrsUcGenerator(dto, cqrsType, isGenerateUseCase)
 	} else {
-		err = internalUcGenerator(dto, isAll, isUseCaseOnly)
+		err = internalUcGenerator(dto, isGenerateUseCase)
 	}
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
@@ -102,7 +101,7 @@ func modGen() {
 		return
 	}
 
-	err = internalSvcGenerator(dto, isAll, isServiceOnly)
+	err = internalSvcGenerator(dto, isGenerateService)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
@@ -114,20 +113,20 @@ func modGen() {
 		return
 	}
 
-	err = internalRepoGenerator(dto, isAll, isRepoOnly)
+	err = internalRepoGenerator(dto, isGenerateRepo)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
 	}
 
 	if !isEmptyFields {
-		err = modelsGenerator(dto, isAll, isModelsOnly || isRepoOnly)
+		err = modelsGenerator(dto, isGenerateModels)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return
 		}
 
-		err = mapperGenerator(dto, domainPath, isAll, isModelsOnly || isRepoOnly)
+		err = mapperGenerator(dto, domainPath, isGenerateModels)
 		if err != nil {
 			logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 			return
@@ -146,22 +145,22 @@ func modGen() {
 	}
 
 	if isCqrs {
-		err = domainCqrsUcGenerator(dto, cqrsType, isAll, isUseCaseOnly)
+		err = domainCqrsUcGenerator(dto, cqrsType, isGenerateUseCase)
 	} else {
-		err = domainUcGenerator(dto, isAll, isUseCaseOnly)
+		err = domainUcGenerator(dto, isGenerateUseCase)
 	}
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
 	}
 
-	err = domainSvcGenerator(dto, isAll, isServiceOnly)
+	err = domainSvcGenerator(dto, isGenerateService)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
 	}
 
-	err = domainRepoGenerator(dto, isAll, isRepoOnly)
+	err = domainRepoGenerator(dto, isGenerateRepo)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return

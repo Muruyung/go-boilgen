@@ -24,6 +24,8 @@ github.com/Muruyung/go-utilities v1.0.8 h1:TdnKu8TaOElS+IMh46B52uIpkH+q7G6z8W3Cp
 github.com/Muruyung/go-utilities v1.0.8/go.mod h1:wMAMpB9ZljUe3xoVXYzEFKaaQn3FVc4Y7SN+1mZyYUU=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8D7ML55dXQrVaamCz2vxCfdQBasLZfHKk=
+github.com/carmark/pseudo-terminal-go v0.0.0-20151106093136-5a48ae24c6f5 h1:WsxAWarPn1PKpBPSzGCH5qLbcioqdxsXuYIwc+RYz9U=
+github.com/carmark/pseudo-terminal-go v0.0.0-20151106093136-5a48ae24c6f5/go.mod h1:8Qkync7rscOMM34525Dcy8RQ/LUCtXt5IagpNsEMRKU=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.0.2 h1:JIufpQLbh4DkbQoii76ItQIUFzevQSqOLZca4eamEDs=

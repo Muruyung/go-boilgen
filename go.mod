@@ -14,6 +14,7 @@ require (
 
 require (
 	cloud.google.com/go v0.49.0 // indirect
+	github.com/carmark/pseudo-terminal-go v0.0.0-20151106093136-5a48ae24c6f5
 	github.com/cenkalti/backoff/v4 v4.0.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect

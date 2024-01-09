@@ -8,8 +8,8 @@ import (
 	"github.com/dave/jennifer/jen"
 )
 
-func mapperGenerator(dto dtoModule, domainPath string, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func mapperGenerator(dto dtoModule, domainPath string, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 	var err error

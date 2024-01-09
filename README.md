@@ -8,7 +8,7 @@ You can generate a whole modules just by running this command.
 
 The following command is used for install it into your local
 
-```sh {"id":"01HK4A6PCACAJVWTMCQ8WCY8AP"}
+```sh
 go install github.com/Muruyung/go-boilgen@latest
 ```
 
@@ -16,13 +16,13 @@ go install github.com/Muruyung/go-boilgen@latest
 
 If you want to generate code for a new project, you have to do init first
 
-```sh {"id":"01HK4A6PCACAJVWTMCQ9M2TXCP"}
+```sh
 go mod init project-name
 ```
 
 If you want to generate code for a new project or also an old project, you need to add this dependencies into your project
 
-```sh {"id":"01HK4A6PCACAJVWTMCQAQM3ZGD"}
+```sh
 # Required for using some utilities, like converter, pagination, and query builder
 go-boilgen init
 
@@ -34,39 +34,15 @@ go install github.com/RanguraGIT/genut@v1.0.0-release
 
 ## Command
 
-**NEW**: Now you can use go-boilgen interactively using this command
+You can use go-boilgen interactively using this command
 
-```sh {"id":"01HK4A6PCACAJVWTMCQEMCPJKH"}
+```bash
 go-boilgen run
-```
-
-This is example basic command using default method
-
-```bash {"id":"01HK4A6PCACAJVWTMCQEVTH1HK"}
-go-boilgen -s service_name -n module_name -f "field_name1:data_type,field_name2:data_type" -m "method1,method2"
-```
-
-You can just generate entity only using flag **--entity-only**.
-
-```bash {"id":"01HK4A6PCACAJVWTMCQJRV8PSM"}
-go-boilgen -s service_name -n module_name -f "field_name1:data_type,field_name2:data_type" --entity-only
-```
-
-If you want to generate custom method, you must use the flag **-c** (or **--custom-method**), **-p** (or **--params**), and **-r** (or **--return**, optional)
-
-```bash {"id":"01HK4A6PCACAJVWTMCQKM4AE1P"}
-go-boilgen -s service_name -n module_name -c custom_method_name -p "field_name1:data_type,field_name2:data_type" -r "field_name1:data_type,field_name2:data_type"
-```
-
-If you want to use CQRS pattern, just use the flag **--cqrs**
-
-```bash {"id":"01HK4A6PCACAJVWTMCQNFFQANK"}
-go-boilgen --cqrs -s service_name -n module_name -f "field_name1:data_type,field_name2:data_type" -m "method1,method2"
 ```
 
 Use this command for more information about Go-Boilgen.
 
-```bash {"id":"01HK4A6PCACAJVWTMCQRV9QVKQ"}
+```bash
 go-boilgen --help
 ```
 

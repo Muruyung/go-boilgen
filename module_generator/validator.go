@@ -11,7 +11,7 @@ func validate(dto dtoModule) (err error) {
 		return errors.New("flag name cannot be empty")
 	}
 
-	if _, ok := dto.methods["custom"]; ok && !dto.entityOnly {
+	if _, ok := dto.methods["custom"]; ok && !dto.isEntity {
 		if dto.methodName == "" {
 			return errors.New("flag custom-method cannot be empty if you're using custom methods")
 		}
@@ -20,9 +20,9 @@ func validate(dto dtoModule) (err error) {
 	return
 }
 
-func yesOrNo(char rune) bool {
+func yesOrNo(char string) bool {
 	switch char {
-	case 'N', 'n':
+	case "N", "n":
 		return false
 	default:
 		return true

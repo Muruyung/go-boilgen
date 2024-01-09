@@ -9,8 +9,8 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-func modelsGenerator(dto dtoModule, isAll, isOnly bool) error {
-	if !isAll && !isOnly {
+func modelsGenerator(dto dtoModule, isGenerate bool) error {
+	if !isGenerate {
 		return nil
 	}
 
