@@ -96,13 +96,13 @@ func modGen() {
 		return
 	}
 
-	err = internalSvcGenerator(dto, isAll, isServiceOnly)
+	err = svcTxGenerator(dto)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
 	}
 
-	err = internalRepoGenerator(dto, isAll, isRepoOnly)
+	err = internalSvcGenerator(dto, isAll, isServiceOnly)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return
@@ -114,7 +114,7 @@ func modGen() {
 		return
 	}
 
-	err = svcTxGenerator(dto)
+	err = internalRepoGenerator(dto, isAll, isRepoOnly)
 	if err != nil {
 		logger.Logger.Error(fmt.Sprintf(defaultErr, err))
 		return

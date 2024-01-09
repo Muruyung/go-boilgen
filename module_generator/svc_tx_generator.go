@@ -9,7 +9,8 @@ import (
 )
 
 func svcTxGenerator(dto dtoModule) error {
-	dto.path += "service" + dto.sep + "svc_tx"
+	path := dto.path + "service" + dto.sep
+	dto.path = path + "svc_tx"
 	var (
 		err error
 	)
@@ -24,6 +25,13 @@ func svcTxGenerator(dto dtoModule) error {
 	} else {
 		logger.Logger.Warn("internal directory svc_tx already created")
 		return nil
+	}
+
+	err = appendInit("SvcTx", dto.services, path)
+	if err != nil {
+		return err
+	} else {
+		logger.Logger.Info("general init service created")
 	}
 
 	err = generateInitSvcTx(dto.path, dto.services)

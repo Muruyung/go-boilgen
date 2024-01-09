@@ -16,7 +16,8 @@ func internalSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 		return nil
 	}
 
-	dto.path += "service" + dto.sep + dto.name
+	path := dto.path + "service" + dto.sep
+	dto.path = path + dto.name
 	var (
 		err error
 	)
@@ -27,6 +28,13 @@ func internalSvcGenerator(dto dtoModule, isAll, isOnly bool) error {
 			return err
 		} else {
 			logger.Logger.Info("internal directory service created")
+		}
+
+		err = appendInit(dto.name, dto.services, path)
+		if err != nil {
+			return err
+		} else {
+			logger.Logger.Info("general init service created")
 		}
 	}
 

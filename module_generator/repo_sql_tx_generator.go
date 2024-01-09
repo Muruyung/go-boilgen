@@ -9,7 +9,8 @@ import (
 )
 
 func sqlTxGenerator(dto dtoModule) error {
-	dto.path += "repository" + dto.sep + "mysql" + dto.sep + "mysql_tx"
+	path := dto.path + "repository" + dto.sep + "mysql" + dto.sep
+	dto.path = path + "mysql_tx"
 	var (
 		err error
 	)
@@ -24,6 +25,13 @@ func sqlTxGenerator(dto dtoModule) error {
 	} else {
 		logger.Logger.Warn("internal directory mysql_tx already created")
 		return nil
+	}
+
+	err = appendInit("SqlTx", dto.services, path)
+	if err != nil {
+		return err
+	} else {
+		logger.Logger.Info("general init repository created")
 	}
 
 	err = generateInitMysqlTx(dto.path, dto.services)
@@ -75,7 +83,7 @@ func generateInitMysqlTx(path, services string) error {
 			Line().
 			Id(fmt.Sprintf(`"%s/pkg/database"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/internal/repository/mysql"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`repository_mysql "%s/services/%s/internal/repository/mysql"`, projectName, services)).Id("\n"),
 	))
 
 	var (
@@ -94,7 +102,7 @@ func generateInitMysqlTx(path, services string) error {
 		jen.Id("tx").Id(":=").Id("&"+interactorName).Block(
 			jen.Id("db: db,"),
 		),
-		jen.Id("tx.wrapper").Op("=").Id("mysql.Init(tx)"),
+		jen.Id("tx.wrapper").Op("=").Id("repository_mysql.Init(tx)"),
 		jen.Return(
 			jen.Id("tx"),
 		),
@@ -120,7 +128,7 @@ func generateRepoBeginTx(path, services string) error {
 			Id(fmt.Sprintf(`"%s/pkg/database"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/pkg/logger"`, projectName)).Id("\n").
 			Id(fmt.Sprintf(`"%s/services/%s/domain/repository"`, projectName, services)).Id("\n").
-			Id(fmt.Sprintf(`"%s/services/%s/internal/repository/mysql"`, projectName, services)).Id("\n"),
+			Id(fmt.Sprintf(`repository_mysql "%s/services/%s/internal/repository/mysql"`, projectName, services)).Id("\n"),
 	))
 
 	file.Commentf("%s begin sql transaction repository", methodName)
@@ -196,7 +204,7 @@ func generateRepoBeginTx(path, services string) error {
 					).Id(","),
 				),
 				jen.Line(),
-				jen.Id("dbTx.wrapper").Op("=").Id("mysql.Init").Params(jen.Id("dbTx")),
+				jen.Id("dbTx.wrapper").Op("=").Id("repository_mysql.Init").Params(jen.Id("dbTx")),
 			),
 			jen.Line(),
 			jen.Id("err").Op("=").Id("operation").Params(jen.Id("ctxTx"), jen.Id("dbTx.Wrapper").Params()),
